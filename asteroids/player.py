@@ -75,4 +75,5 @@ class Player(Component):
         Checks for collisions with any asteroids,
         destoying the player ship if one occurs.
         """
-        raise NotImplementedError()
+        pass
+        # raise NotImplementedError()

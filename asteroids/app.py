@@ -10,7 +10,7 @@ class App(object):
     """
 
     # Game states
-    SETUP, SPLASH, RUNNING = range(3)
+    SETUP, SPLASH, RUNNING, GAME_OVER = range(4)
 
     def __init__(self):
         pygame.init()
@@ -81,12 +81,33 @@ class App(object):
         self.screen.fill((0, 0, 0))
         pygame.display.flip()
 
+    def _load_game_over(self):
+        """
+        Hides the player and loads the Game Over screen.
+        """
+        self._state = App.GAME_OVER
+        self.player.x = -self.player.radius
+        self.player.y = -self.player.radius
+        self.player.speed = 0
+        self.player.boosting = False
+
     def _update(self):
         """
         Performs one step of the execution loop for all game components.
         """
-        if self._state != App.RUNNING:
+        if self._state != App.RUNNING and self._state != App.GAME_OVER:
             return
+
+        # If the player is destroyed, transition to Game Over state or quit
+        if self._state == App.RUNNING and self.player.destroyed:
+            if settings.PLAYER_MODE == settings.HUMAN:
+                self._load_game_over()
+            else:
+                raise NotImplementedError()
+
+        # Remove destroyed components
+        self.bullets = filter(lambda x: not x.destroyed, self.bullets)
+        self.asteroids = filter(lambda x: not x.destroyed, self.asteroids)
 
         # Move all game components
         self.player.move()
@@ -95,22 +116,33 @@ class App(object):
         for asteroid in self.asteroids:
             asteroid.move()
 
+        # Check for player collisions with asteroids:
+        self.player.check_for_collisions(self.asteroids)
+
+        # Age and check for bullet collisions with asteroids
+        for bullet in self.bullets:
+            bullet.check_for_collisions(aself.steroids)
+            bullet.increase_age()
+
     def _render(self):
         """
         Re-renders all game components.
         """
-        if self._state != App.RUNNING:
+        if self._state != App.RUNNING and self._state != App.GAME_OVER:
             return
 
         # Reset the screen
         self.screen.fill((0, 0, 0))
 
-        # Redraw all game components
-        self.player.draw(self.screen)
+        # Redraw all non-destroyed game components
+        if not self.player.destroyed:
+            self.player.draw(self.screen)
         for bullet in self.bullets:
-            bullet.draw(self.screen)
+            if not bullet.destroyed:
+                bullet.draw(self.screen)
         for asteroid in self.asteroids:
-            asteroid.draw(self.screen)
+            if not asteroid.destroyed:
+                asteroid.draw(self.screen)
 
         # Add render rects for the components current and previous positions
         render_rects = []
@@ -129,6 +161,13 @@ class App(object):
             fps_rect = render_on(fps_text, self.screen, fps_text.get_width() / 2,
                     settings.HEIGHT - fps_text.get_height() / 2)
             render_rects.append(fps_rect)
+
+        # If the game is over, display game over text
+        if self._state == App.GAME_OVER:
+            game_over_text = self._big_font.render("GAME OVER", True, WHITE)
+            game_over_rect = render_on(game_over_text, self.screen,
+                    settings.WIDTH/2, settings.HEIGHT/2)
+            render_rects.append(game_over_rect)
 
         # Actually re-render all collected rectangles
         pygame.display.update(render_rects)
@@ -149,33 +188,37 @@ class App(object):
                     event.key == pygame.K_RETURN):
                 self._load_level()
 
-        # Manage player controls
-        elif self._state == App.RUNNING:
+        elif self._state == App.RUNNING or self._state == App.GAME_OVER:
 
-            # Manage general running state controls
+            # Handle settings + debugging actions
             if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                 settings.SHOW_FPS = not settings.SHOW_FPS
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
+                self.player.destroyed = True
 
-            # Manage player controls
-            if settings.PLAYER_MODE == settings.HUMAN:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
-                        self.player.boosting = True
-                    if event.key == pygame.K_LEFT:
-                        self.player.spin = Player.COUNTER_CLOCKWISE
-                    if event.key == pygame.K_RIGHT:
-                        self.player.spin = Player.CLOCKWISE
-                elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_UP:
-                        self.player.boosting = False
-                    if event.key == pygame.K_LEFT:
-                        self.player.spin = Player.NO_SPIN
-                    if event.key == pygame.K_RIGHT:
-                        self.player.spin = Player.NO_SPIN
+            # Running state only controls
+            if self._state == App.RUNNING:
 
-            # Manage AI spectator controls
-            elif settings.PLAYER_MODE == settings.AI:
-                raise NotImplementedError()
+                # Handle human player controls
+                if settings.PLAYER_MODE == settings.HUMAN:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_UP:
+                            self.player.boosting = True
+                        if event.key == pygame.K_LEFT:
+                            self.player.spin = Player.COUNTER_CLOCKWISE
+                        if event.key == pygame.K_RIGHT:
+                            self.player.spin = Player.CLOCKWISE
+                    elif event.type == pygame.KEYUP:
+                        if event.key == pygame.K_UP:
+                            self.player.boosting = False
+                        if event.key == pygame.K_LEFT:
+                            self.player.spin = Player.NO_SPIN
+                        if event.key == pygame.K_RIGHT:
+                            self.player.spin = Player.NO_SPIN
+
+                # Handle AI spectator controls
+                elif settings.PLAYER_MODE == settings.AI:
+                    raise NotImplementedError()
 
         # Don't listen to events in other app states
         else:
