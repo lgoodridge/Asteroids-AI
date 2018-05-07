@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Data Files
+*.csv
+*.pdf
+
+# Data Folder
+data/*
+!data/readme
+
+# Temp Files
+.*.sw*
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+env/
+lib/
+lib64/
+parts/
+sdist/
+target/
+var/
+.Python
+.installed.cfg
+*.egg-info/
+*.egg
+
+# Other Files
+notes/
+tmp/
+todo.txt
+.DS_Store
