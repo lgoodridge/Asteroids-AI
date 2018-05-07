@@ -1,5 +1,5 @@
 from asteroids.player import Player
-from asteroids.utils import render_on
+from asteroids.utils import render_on, BLACK, GRAY, WHITE
 import math
 import pygame
 import settings
@@ -26,15 +26,18 @@ class App(object):
             raise RuntimeError("Programmer Error: App._setup() called twice.")
         self._has_started = True
 
+        # Set up the game clock
+        self._clock = pygame.time.Clock()
+
         # Set up the game screen
         self.screen = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
-        self.screen.fill((0, 0, 0))
+        self.screen.fill(BLACK)
         pygame.display.flip()
 
         # Load the game font's (uses system's default font)
         self._big_font = pygame.font.SysFont(None, 100)
         self._medium_font = pygame.font.SysFont(None, 50)
-        self._small_font = pygame.font.SysFont(None, 25)
+        self._small_font = pygame.font.SysFont(None, 24)
 
         # Initialize game component variables
         self.player = None
@@ -58,9 +61,9 @@ class App(object):
         """
         self._state = App.SPLASH
         self._splash_title = self._big_font.render("Asteroids",
-                True, (220, 220, 220))
+                True, WHITE)
         self._splash_text = self._medium_font.render(
-                "Click or press Enter to begin.", True, (140, 140, 140))
+                "Click or press Enter to begin.", True, GRAY)
         render_on(self._splash_title, self.screen, settings.WIDTH/2,
                 settings.HEIGHT/2 - self._splash_title.get_height())
         render_on(self._splash_text, self.screen, settings.WIDTH/2,
@@ -109,21 +112,34 @@ class App(object):
         for asteroid in self.asteroids:
             asteroid.draw(self.screen)
 
-        # Actually re-render the current and previous component render rects
+        # Add render rects for the components current and previous positions
         render_rects = []
         self.player.add_render_rects(render_rects)
         for bullet in self.bullets:
             bullet.add_render_rects(render_rects)
         for asteroid in self.asteroids:
             asteroid.add_render_rects(render_rects)
+
+        # Show FPS text in bottom left if necessary
+        if settings.SHOW_FPS:
+            current_fps = 0 if math.isinf(self._clock.get_fps()) \
+                    else int(self._clock.get_fps())
+            fps_text = self._small_font.render(
+                    "FPS: %d" % current_fps, True, WHITE)
+            fps_rect = render_on(fps_text, self.screen, fps_text.get_width() / 2,
+                    settings.HEIGHT - fps_text.get_height() / 2)
+            render_rects.append(fps_rect)
+
+        # Actually re-render all collected rectangles
         pygame.display.update(render_rects)
 
     def _handle_event(self, event):
         """
         Interprets and handles an asynchronous event.
         """
-        # Stop running when the close button is pressed
-        if event.type == pygame.QUIT:
+        # Stop running when the close button or 'Q' is pressed
+        if event.type == pygame.QUIT or \
+                event.type == pygame.KEYDOWN and event.key == pygame.K_q:
             self._running = False
 
         # Check if user clicked or pressed enter to begin
@@ -137,31 +153,31 @@ class App(object):
         elif self._state == App.RUNNING:
 
             # Manage general running state controls
-            if pygame.key.get_pressed()[pygame.K_f]:
-                pass    # TODO: Toggle FPS display
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                settings.SHOW_FPS = not settings.SHOW_FPS
 
             # Manage player controls
-            elif settings.PLAYER_MODE == settings.HUMAN:
+            if settings.PLAYER_MODE == settings.HUMAN:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
                         self.player.boosting = True
-                    elif event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_LEFT:
                         self.player.spin = Player.COUNTER_CLOCKWISE
-                    elif event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT:
                         self.player.spin = Player.CLOCKWISE
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_UP:
                         self.player.boosting = False
-                    elif event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_LEFT:
                         self.player.spin = Player.NO_SPIN
-                    elif event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT:
                         self.player.spin = Player.NO_SPIN
 
             # Manage AI spectator controls
             elif settings.PLAYER_MODE == settings.AI:
                 raise NotImplementedError()
 
-        # Unhandled event
+        # Don't listen to events in other app states
         else:
             return
 
@@ -184,5 +200,6 @@ class App(object):
                 self._handle_event(event)
             self._update()
             self._render()
+            self._clock.tick(settings.MAX_FPS)
         self._cleanup()
 

@@ -1,4 +1,5 @@
 from asteroids.component import Component
+from asteroids.utils import WHITE
 import math
 import pygame
 
@@ -61,7 +62,7 @@ class Player(Component):
                 self.y - self.radius * math.cos(p + self.rotation))
                 for p in unrotated_angles]
         vertices = vertices[:2] + [(self.x, self.y)] + vertices[2:]
-        pygame.draw.polygon(screen, (255, 255, 255), vertices, 1)
+        pygame.draw.polygon(screen, WHITE, vertices, 1)
 
     def shoot(self, bullets):
         """
