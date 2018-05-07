@@ -1,6 +1,8 @@
+from asteroids.player import Player
 import pygame
+import settings
 
-class App():
+class App(object):
     """
     Defines the main application logic for the Asteroids game.
     """
@@ -13,6 +15,9 @@ class App():
         self._has_started = False
         self._running = False
         self._screen = None
+        self.player = None
+        self.bullets = []
+        self.asteroids = []
 
     def _setup(self):
         """
@@ -27,7 +32,7 @@ class App():
         pygame.mixer.init()
 
         # Set up the game screen
-        self._screen = pygame.display.set_mode((600, 600))
+        self._screen = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
         self._screen.fill((0, 0, 0))
         pygame.display.flip()
 
@@ -41,6 +46,14 @@ class App():
         """
         pygame.quit()
         pygame.mixer.quit()
+
+    def _load_level(self):
+        """
+        Loads the initial game components for the level.
+        """
+        self.player = Player(settings.WIDTH/2, settings.HEIGHT/2)
+        self.bullets = []
+        self.asteroids = []     # TODO: Load initial asteroids
 
     def _update(self):
         """
