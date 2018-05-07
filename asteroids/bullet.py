@@ -1,4 +1,5 @@
 from asteroids.component import Component
+import pygame
 
 class Bullet(Component):
     """
@@ -19,11 +20,11 @@ class Bullet(Component):
         super(Bullet, self).__init__(Bullet.RADIUS, x, y, Bullet.SPEED, angle)
         self._age = 0
 
-    def draw(self):
+    def draw(self, screen):
         """
         Draws the bullet at its current location.
         """
-        super(Bullet, self).draw()
+        super(Bullet, self).draw(screen)
         raise NotImplementedError()
 
     def increase_age(self):

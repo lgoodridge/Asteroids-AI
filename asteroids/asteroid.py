@@ -1,4 +1,5 @@
 from asteroids.component import Component
+import pygame
 
 class Asteroid(Component):
     """
@@ -13,11 +14,11 @@ class Asteroid(Component):
                 x, y, speed, angle)
         self._size = size
 
-    def draw(self):
+    def draw(self, screen):
         """
         Draws the asteroid at its current location.
         """
-        super(Asteroid, self).draw()
+        super(Asteroid, self).draw(screen)
         raise NotImplementedError()
 
     def split(self):

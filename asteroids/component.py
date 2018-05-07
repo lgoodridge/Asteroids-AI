@@ -1,3 +1,4 @@
+from asteroids.utils import get_render_rect
 import math
 import settings
 
@@ -22,15 +23,23 @@ class Component(object):
         """
         self.prevX = self.x
         self.prevY = self.y
-        self.x = self.speed * math.sin(angle)
-        self.y = self.speed * math.cos(angle)
+        self.x += self.speed * math.sin(self.angle)
+        self.y += self.speed * -math.cos(self.angle)
         self._wrap_screen_bounds()
 
-    def draw(self):
+    def draw(self, screen):
         """
         Draws the component at its current position.
         """
         pass
+
+    def add_render_rects(self, rects):
+        """
+        Adds the render rects for the component's current and
+        previous positions to the provided rectangle list.
+        """
+        rects.append(get_render_rect(self.x, self.y, self.radius))
+        rects.append(get_render_rect(self.prevX, self.prevY, self.radius))
 
     def _wrap_screen_bounds(self):
         """
