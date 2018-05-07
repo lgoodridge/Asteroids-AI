@@ -1,3 +1,5 @@
+from asteroids.asteroid import Asteroid
+from asteroids.bullet import Bullet
 from asteroids.player import Player
 from asteroids.utils import render_on, BLACK, GRAY, WHITE
 import math
@@ -78,6 +80,7 @@ class App(object):
         self.player = Player(settings.WIDTH/2, settings.HEIGHT/2)
         self.bullets = []
         self.asteroids = []     # TODO: Load initial asteroids
+        self.asteroids = [Asteroid(3, 200, 100, 0, 0, shape=2), Asteroid(2, 400, 600, 2, math.pi/3, shape=2)]
         self.screen.fill((0, 0, 0))
         pygame.display.flip()
 
@@ -191,9 +194,18 @@ class App(object):
         elif self._state == App.RUNNING or self._state == App.GAME_OVER:
 
             # Handle settings + debugging actions
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                settings.SHOW_COLLISION_BOUNDARY = settings.DEBUG_MODE or \
+                        not settings.SHOW_COLLISION_BOUNDARY
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
+                settings.DEBUG_MODE = not settings.DEBUG_MODE
+                settings.SHOW_COLLISION_BOUNDARY = settings.DEBUG_MODE
             if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                 settings.SHOW_FPS = not settings.SHOW_FPS
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+                if len(self.asteroids) > 0:
+                    self.asteroids[0].split(self.asteroids)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
                 self.player.destroyed = True
 
             # Running state only controls

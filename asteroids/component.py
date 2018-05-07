@@ -1,5 +1,6 @@
-from asteroids.utils import get_render_rect
+from asteroids.utils import get_render_rect, GREEN, RED
 import math
+import pygame
 import settings
 
 class Component(object):
@@ -30,8 +31,15 @@ class Component(object):
     def draw(self, screen):
         """
         Draws the component at its current position.
+        Draws a circle around the collision boundary
+        of the component if specified in settings.
         """
-        pass
+        if settings.DEBUG_MODE:
+            pygame.draw.circle(screen, GREEN, (int(self.x), int(self.y)),
+                    self.radius, 1)
+        elif settings.SHOW_COLLISION_BOUNDARY:
+            pygame.draw.circle(screen, RED, (int(self.x), int(self.y)),
+                    self.radius, 1)
 
     def add_render_rects(self, rects):
         """

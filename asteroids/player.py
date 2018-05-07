@@ -1,7 +1,8 @@
 from asteroids.component import Component
-from asteroids.utils import WHITE
+from asteroids.utils import get_rotated_vertices, has_collided, WHITE
 import math
 import pygame
+import settings
 
 class Player(Component):
     """
@@ -58,9 +59,8 @@ class Player(Component):
         """
         super(Player, self).draw(screen)
         unrotated_angles = [0, (3 * math.pi / 4), (5 * math.pi / 4)]
-        vertices = [(self.x + self.radius * math.sin(p + self.rotation),
-                self.y - self.radius * math.cos(p + self.rotation))
-                for p in unrotated_angles]
+        vertices = get_rotated_vertices(unrotated_angles, self.x, self.y,
+                self.radius, self.rotation)
         vertices = vertices[:2] + [(self.x, self.y)] + vertices[2:]
         pygame.draw.polygon(screen, WHITE, vertices, 1)
 
@@ -75,5 +75,9 @@ class Player(Component):
         Checks for collisions with any asteroids,
         destoying the player ship if one occurs.
         """
-        pass
-        # raise NotImplementedError()
+        if settings.DEBUG_MODE:
+            return
+        for asteroid in asteroids:
+            if has_collided(self, asteroid):
+                self.destroyed = True
+                return
