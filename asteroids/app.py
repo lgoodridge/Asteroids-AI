@@ -153,7 +153,7 @@ class App(object):
 
         # Age and check for bullet collisions with asteroids
         for bullet in self.bullets:
-            bullet.check_for_collisions(aself.steroids)
+            bullet.check_for_collisions(self.asteroids)
             bullet.increase_age()
 
     def _render(self):
@@ -262,7 +262,7 @@ class App(object):
                         if event.key == pygame.K_RIGHT:
                             self.player.start_spinning(True)
                         if event.key == pygame.K_SPACE:
-                            play_sound("fire")
+                            self.player.shoot(self.bullets)
                     elif event.type == pygame.KEYUP:
                         if event.key == pygame.K_UP:
                             self.player.stop_boosting()

@@ -1,3 +1,4 @@
+from asteroids.bullet import Bullet
 from asteroids.component import Component
 from asteroids.utils import get_rotated_vertices, has_collided, WHITE
 from asteroids.sound import play_sound, stop_sound
@@ -97,7 +98,9 @@ class Player(Component):
         """
         Shoots a bullet in the current direction if possible.
         """
-        raise NotImplementedError()
+        if len(bullets) < Bullet.MAX_ONSCREEN_BULLETS:
+            bullets.append(Bullet(self.x, self.y, self._rotation))
+            play_sound("fire")
 
     def check_for_collisions(self, asteroids):
         """
