@@ -40,12 +40,14 @@ class Bullet(Component):
 
     def check_for_collisions(self, asteroids):
         """
-        Checks for collisions with any asteroids, splitting the
-        asteroid and destroying the bullet if one occurs.
+        Returns whether the bullet has collided with any asteroids,
+        splitting the asteroid and destroying the bullet if one occurs.
         """
         if self.destroyed:
-            return
+            return False
         for asteroid in asteroids:
             if has_collided(self, asteroid):
                 self.destroyed = True
                 asteroid.split(asteroids)
+                return True
+        return False

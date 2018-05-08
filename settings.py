@@ -35,6 +35,9 @@ DEBUG_MODE = False
 # Whether to show the collision boundary for components
 SHOW_COLLISION_BOUNDARY = False
 
+# Whether to show score in top left corner
+SHOW_SCORE = True
+
 # Whether to show FPS in bottom left corner
 SHOW_FPS = True
 

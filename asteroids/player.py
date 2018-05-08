@@ -104,14 +104,15 @@ class Player(Component):
 
     def check_for_collisions(self, asteroids):
         """
-        Checks for collisions with any asteroids,
-        destoying the player ship if one occurs.
+        Returns whether the player ship has collided with
+        any asteroids, destroying the player ship if so.
         """
         if self.destroyed or settings.DEBUG_MODE:
-            return
+            return False
         for asteroid in asteroids:
             if has_collided(self, asteroid):
                 self.destroyed = True
                 stop_sound("thrust")
                 play_sound("bangSmall")
-                return
+                return True
+        return False

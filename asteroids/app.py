@@ -153,7 +153,7 @@ class App(object):
 
         # Age and check for bullet collisions with asteroids
         for bullet in self.bullets:
-            bullet.check_for_collisions(self.asteroids)
+            self.score += int(bullet.check_for_collisions(self.asteroids))
             bullet.increase_age()
 
     def _render(self):
@@ -183,6 +183,14 @@ class App(object):
             bullet.add_render_rects(render_rects)
         for asteroid in self.asteroids:
             asteroid.add_render_rects(render_rects)
+
+        # Show score in top left if necessary
+        if settings.SHOW_SCORE:
+            score_text = self._small_font.render(
+                    "Score: %d" % self.score, True, WHITE)
+            score_rect = render_on(score_text, self.screen,
+                    score_text.get_width() / 2, score_text.get_height()/2)
+            render_rects.append(score_rect)
 
         # Show FPS text in bottom left if necessary
         if settings.SHOW_FPS:
@@ -226,6 +234,9 @@ class App(object):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                 settings.SHOW_COLLISION_BOUNDARY = settings.DEBUG_MODE or \
                         not settings.SHOW_COLLISION_BOUNDARY
+            # C: Toggle score display
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
+                settings.SHOW_SCORE = not settings.SHOW_SCORE
             # D: Toggle debug (invincible) mode
             if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
                 settings.DEBUG_MODE = not settings.DEBUG_MODE
