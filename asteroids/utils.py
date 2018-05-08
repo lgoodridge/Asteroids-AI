@@ -12,6 +12,20 @@ GREEN = (20, 200, 20)
 RED = (200, 20, 20)
 WHITE = (220, 220, 220)
 
+def angle_to(comp1, comp2):
+    """
+    Returns the angle comp1 would have to face to move toward comp2.
+    """
+    return angle_to_xy(comp1.x, comp1.y, comp2.x, comp2.y)
+
+def angle_to_xy(x1, y1, x2, y2):
+    """
+    Returns the angle between the pair of points.
+    """
+    dx = x2 - x1
+    dy = y2 - y1
+    return math.atan2(dx, -dy)
+
 def distance_between(comp1, comp2):
     """
     Returns the distance between the two components.

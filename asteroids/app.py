@@ -46,6 +46,12 @@ class App(object):
         self.bullets = []
         self.asteroids = []
 
+        # Initialize score and time trackers
+        self.score = 0
+        self._start_time = 0
+        self._last_spawn_time = 0
+        self._spawn_period = 0
+
         # Set the initial game state
         self._state = App.SETUP
         self._running = True
@@ -77,11 +83,23 @@ class App(object):
         Loads the initial game components for the level.
         """
         self._state = App.RUNNING
+
+        # Load initial game components
         self.player = Player(settings.WIDTH/2, settings.HEIGHT/2)
         self.bullets = []
-        self.asteroids = []     # TODO: Load initial asteroids
-        self.asteroids = [Asteroid(3, 200, 100, 0, 0, shape=2), Asteroid(2, 400, 600, 2, math.pi/3, shape=2)]
-        self.screen.fill((0, 0, 0))
+        self.asteroids = []
+        for i in range(4):
+            Asteroid.spawn(self.asteroids, self.player, False)
+        Asteroid.spawn(self.asteroids, self.player, True)
+
+        # Load initial tracker state
+        self.score = 0
+        self._start_time = pygame.time.get_ticks()
+        self._last_spawn_time = pygame.time.get_ticks()
+        self._spawn_period = settings.INITIAL_SPAWN_PERIOD
+
+        # Reset the screen
+        self.screen.fill(BLACK)
         pygame.display.flip()
 
     def _load_game_over(self):
@@ -111,6 +129,14 @@ class App(object):
         # Remove destroyed components
         self.bullets = filter(lambda x: not x.destroyed, self.bullets)
         self.asteroids = filter(lambda x: not x.destroyed, self.asteroids)
+
+        # If the spawn period has expired, spawn a new aimed Asteroid
+        time_since_last_spawn = pygame.time.get_ticks() - self._last_spawn_time
+        if time_since_last_spawn > self._spawn_period:
+            new_spawn_period = self._spawn_period - settings.SPAWN_PERIOD_DEC
+            self._spawn_period = max(new_spawn_period, settings.MIN_SPAWN_PERIOD)
+            self._last_spawn_time = pygame.time.get_ticks()
+            Asteroid.spawn(self.asteroids, self.player, True)
 
         # Move all game components
         self.player.move()
@@ -202,9 +228,10 @@ class App(object):
                 settings.SHOW_COLLISION_BOUNDARY = settings.DEBUG_MODE
             if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                 settings.SHOW_FPS = not settings.SHOW_FPS
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                self._load_level()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
-                if len(self.asteroids) > 0:
-                    self.asteroids[0].split(self.asteroids)
+                Asteroid.spawn(self.asteroids, self.player, True)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
                 self.player.destroyed = True
 
