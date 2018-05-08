@@ -1,5 +1,6 @@
 from asteroids.component import Component
 from asteroids.utils import angle_to_xy, get_rotated_vertices, WHITE
+from asteroids.sound import play_sound
 import math
 import pygame
 import random
@@ -15,6 +16,9 @@ class Asteroid(Component):
 
     # The maximum speed for each asteroid size
     SIZE_TO_MAX_SPEED = [0, 2, 1.5, 1]
+
+    # The "bang" sound for each asteroid size
+    SIZE_TO_BANG_SOUND = ["", "bangSmall", "bangMedium", "bangLarge"]
 
     # The maximum absolute rotation speed for an asteroid
     MAX_ROTATION_SPEED = 0.05
@@ -126,3 +130,4 @@ class Asteroid(Component):
             asteroids.append(Asteroid(self._size-1, self.x, self.y, random.uniform(
                     self.speed, Asteroid.SIZE_TO_MAX_SPEED[self._size-1]),
                     (self.angle + random.uniform(0, math.pi/6)) % 2*math.pi))
+        play_sound(Asteroid.SIZE_TO_BANG_SOUND[self._size])

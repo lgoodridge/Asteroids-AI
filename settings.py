@@ -38,3 +38,5 @@ SHOW_COLLISION_BOUNDARY = False
 # Whether to show FPS in bottom left corner
 SHOW_FPS = True
 
+# Whether to play sound effects
+PLAY_SFX = True

@@ -1,6 +1,7 @@
 from asteroids.asteroid import Asteroid
 from asteroids.bullet import Bullet
 from asteroids.player import Player
+from asteroids.sound import load_sounds, play_sound, stop_all_sounds
 from asteroids.utils import render_on, BLACK, GRAY, WHITE
 import math
 import pygame
@@ -17,6 +18,7 @@ class App(object):
     def __init__(self):
         pygame.init()
         pygame.mixer.init()
+        load_sounds()
         self._has_started = False
         self._running = False
 
@@ -110,7 +112,8 @@ class App(object):
         self.player.x = -self.player.radius
         self.player.y = -self.player.radius
         self.player.speed = 0
-        self.player.boosting = False
+        self.player.stop_boosting()
+        self.player.stop_spinning()
 
     def _update(self):
         """
@@ -219,21 +222,32 @@ class App(object):
 
         elif self._state == App.RUNNING or self._state == App.GAME_OVER:
 
-            # Handle settings + debugging actions
+            # B: Toggle collision boundary display
             if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
                 settings.SHOW_COLLISION_BOUNDARY = settings.DEBUG_MODE or \
                         not settings.SHOW_COLLISION_BOUNDARY
+            # D: Toggle debug (invincible) mode
             if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
                 settings.DEBUG_MODE = not settings.DEBUG_MODE
                 settings.SHOW_COLLISION_BOUNDARY = settings.DEBUG_MODE
+            # F: Toggle FPS display
             if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                 settings.SHOW_FPS = not settings.SHOW_FPS
+            # N: Spawn a new aimed asteroid
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_n:
+                Asteroid.spawn(self.asteroids, self.player, True)
+            # R: Resets the level
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 self._load_level()
+            # S: Toggles sound effects
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
-                Asteroid.spawn(self.asteroids, self.player, True)
+                settings.PLAY_SFX = not settings.PLAY_SFX
+                if not settings.PLAY_SFX:
+                    stop_all_sounds()
+            # X: Splits the first asteroid on the asteroid list
             if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
-                self.player.destroyed = True
+                if len(self.asteroids) > 0:
+                    self.asteroids[0].split(self.asteroids)
 
             # Running state only controls
             if self._state == App.RUNNING:
@@ -242,18 +256,20 @@ class App(object):
                 if settings.PLAYER_MODE == settings.HUMAN:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_UP:
-                            self.player.boosting = True
+                            self.player.start_boosting()
                         if event.key == pygame.K_LEFT:
-                            self.player.spin = Player.COUNTER_CLOCKWISE
+                            self.player.start_spinning(False)
                         if event.key == pygame.K_RIGHT:
-                            self.player.spin = Player.CLOCKWISE
+                            self.player.start_spinning(True)
+                        if event.key == pygame.K_SPACE:
+                            play_sound("fire")
                     elif event.type == pygame.KEYUP:
                         if event.key == pygame.K_UP:
-                            self.player.boosting = False
+                            self.player.stop_boosting()
                         if event.key == pygame.K_LEFT:
-                            self.player.spin = Player.NO_SPIN
+                            self.player.stop_spinning()
                         if event.key == pygame.K_RIGHT:
-                            self.player.spin = Player.NO_SPIN
+                            self.player.stop_spinning()
 
                 # Handle AI spectator controls
                 elif settings.PLAYER_MODE == settings.AI:
