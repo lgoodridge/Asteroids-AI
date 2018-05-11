@@ -1,7 +1,7 @@
 from asteroids.asteroid import Asteroid
 from asteroids.bullet import Bullet
 from asteroids.player import Player
-from asteroids.sound import load_sounds, play_sound, stop_all_sounds
+from asteroids.sound import load_sounds, play_sound, stop_sound, stop_all_sounds
 from asteroids.utils import render_on, BLACK, GRAY, WHITE
 import math
 import pygame
@@ -100,6 +100,9 @@ class App(object):
         self._last_spawn_time = pygame.time.get_ticks()
         self._spawn_period = settings.INITIAL_SPAWN_PERIOD
 
+        # Start the BGM
+        play_sound("bgm", -1)
+
         # Reset the screen
         self.screen.fill(BLACK)
         pygame.display.flip()
@@ -114,6 +117,7 @@ class App(object):
         self.player.speed = 0
         self.player.stop_boosting()
         self.player.stop_spinning()
+        stop_sound("bgm")
 
     def _update(self):
         """
@@ -253,7 +257,9 @@ class App(object):
             # S: Toggles sound effects
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 settings.PLAY_SFX = not settings.PLAY_SFX
-                if not settings.PLAY_SFX:
+                if settings.PLAY_SFX:
+                    play_sound("bgm", -1)
+                else:
                     stop_all_sounds()
             # X: Splits the first asteroid on the asteroid list
             if event.type == pygame.KEYDOWN and event.key == pygame.K_x:

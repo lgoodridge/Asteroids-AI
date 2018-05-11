@@ -29,10 +29,11 @@ def load_sounds():
         raise RuntimeError("Sounds directory (expected at asteroids/sounds/) " +
                 "not found!")
 
-    # Load all files found within the sounds directory
+    # Load all .wav files found within the sounds directory
     for filename in os.listdir(sounds_directory):
-        _sound_library[filename.split(".")[0]] = pygame.mixer.Sound(
-                os.path.join(sounds_directory, filename))
+        if filename.endswith(".wav"):
+            _sound_library[filename.split(".")[0]] = pygame.mixer.Sound(
+                    os.path.join(sounds_directory, filename))
 
 def play_sound(sound_name, loops=0):
     """
