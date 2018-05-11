@@ -2,9 +2,25 @@
 Defines settings for the Asteroids Game / AI.
 """
 
+##################################################
+#                  AI SETTINGS 
+##################################################
+
 # Who (or what) is playing the game
 [HUMAN, AI] = range(2)
 PLAYER_MODE = HUMAN
+
+# Which AI brain to use
+[SIMPLE] = range(1)
+AI_BRAIN = SIMPLE
+
+# Weights of each variable in the fitness function
+FITNESS_SCORE_WEIGHT = 1.0
+FITNESS_RUN_TIME_WEIGHT = 0.01
+
+##################################################
+#               CORE GAME SETTINGS 
+##################################################
 
 # Screen dimensions
 WIDTH = 800
@@ -28,6 +44,10 @@ MIN_SPAWN_PERIOD = 1000
 
 # Game update speed limit (0 means no limit)
 MAX_FPS = 60
+
+##################################################
+#               IN-GAME SETTINGS 
+##################################################
 
 # Whether debug mode is activated (player is invincible)
 DEBUG_MODE = False
