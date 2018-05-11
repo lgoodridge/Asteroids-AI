@@ -22,9 +22,10 @@ class App(object):
         self._has_started = False
         self._running = False
 
-    def _setup(self):
+    def _setup(self, use_screen=True):
         """
         Perform initial setup for all game components.
+        If use_screen is True, sets up the game screen for use as well.
         """
         if self._has_started:
             raise RuntimeError("Programmer Error: App._setup() called twice.")
@@ -33,10 +34,13 @@ class App(object):
         # Set up the game clock
         self._clock = pygame.time.Clock()
 
-        # Set up the game screen
-        self.screen = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
-        self.screen.fill(BLACK)
-        pygame.display.flip()
+        # Set up the game screen, if necessary
+        self._use_screen = use_screen
+        if use_screen:
+            self.screen = pygame.display.set_mode(
+                    (settings.WIDTH, settings.HEIGHT))
+            self.screen.fill(BLACK)
+            pygame.display.flip()
 
         # Load the game font's (uses system's default font)
         self._big_font = pygame.font.SysFont(None, 100)
@@ -48,8 +52,11 @@ class App(object):
         self.bullets = []
         self.asteroids = []
 
-        # Initialize score and time trackers
+        # Iniitialize performance trackers
         self.score = 0
+        self.run_time = 0
+
+        # Initialize score and time trackers
         self._start_time = 0
         self._last_spawn_time = 0
         self._spawn_period = 0
@@ -87,15 +94,18 @@ class App(object):
         self._state = App.RUNNING
 
         # Load initial game components
-        self.player = Player(settings.WIDTH/2, settings.HEIGHT/2)
+        self.player = self._spawn_player()
         self.bullets = []
         self.asteroids = []
         for i in range(4):
             Asteroid.spawn(self.asteroids, self.player, False)
         Asteroid.spawn(self.asteroids, self.player, True)
 
-        # Load initial tracker state
+        # Initialize performance trackers
         self.score = 0
+        self.run_time = 0
+
+        # Load initial time tracker state
         self._start_time = pygame.time.get_ticks()
         self._last_spawn_time = pygame.time.get_ticks()
         self._spawn_period = settings.INITIAL_SPAWN_PERIOD
@@ -103,9 +113,10 @@ class App(object):
         # Start the BGM
         play_sound("bgm", -1)
 
-        # Reset the screen
-        self.screen.fill(BLACK)
-        pygame.display.flip()
+        # Reset the screen, if necessary
+        if self._use_screen:
+            self.screen.fill(BLACK)
+            pygame.display.flip()
 
     def _load_game_over(self):
         """
@@ -126,12 +137,12 @@ class App(object):
         if self._state != App.RUNNING and self._state != App.GAME_OVER:
             return
 
-        # If the player is destroyed, transition to Game Over state or quit
+        # If the player is destroyed, transition to Game Over state or quit.
         if self._state == App.RUNNING and self.player.destroyed:
-            if settings.PLAYER_MODE == settings.HUMAN:
+            if self._use_screen:
                 self._load_game_over()
             else:
-                raise NotImplementedError()
+                self._running = False
 
         # Remove destroyed components
         self.bullets = filter(lambda x: not x.destroyed, self.bullets)
@@ -144,6 +155,9 @@ class App(object):
             self._spawn_period = max(new_spawn_period, settings.MIN_SPAWN_PERIOD)
             self._last_spawn_time = pygame.time.get_ticks()
             Asteroid.spawn(self.asteroids, self.player, True)
+
+        # Update the player with the current game state
+        self._update_player()
 
         # Move all game components
         self.player.move()
@@ -159,6 +173,10 @@ class App(object):
         for bullet in self.bullets:
             self.score += int(bullet.check_for_collisions(self.asteroids))
             bullet.increase_age()
+
+        # Increment run time if the player is still alive
+        if not self.player.destroyed:
+            self.run_time += 1
 
     def _render(self):
         """
@@ -290,7 +308,7 @@ class App(object):
 
                 # Handle AI spectator controls
                 elif settings.PLAYER_MODE == settings.AI:
-                    raise NotImplementedError()
+                    self._handle_ai_spectator_controls(event)
 
         # Don't listen to events in other app states
         else:
@@ -302,12 +320,8 @@ class App(object):
         """
         self._setup()
 
-        # Load the splash page if a human is playing,
-        # otherwise, load directly into the level
-        if settings.PLAYER_MODE == settings.HUMAN:
-            self._load_splash()
-        else:
-            self._load_level()
+        # Load the splash page, and wait for input to continue
+        self._load_splash()
 
         # Run the main execution loop
         while self._running:
@@ -317,4 +331,28 @@ class App(object):
             self._render()
             self._clock.tick(settings.MAX_FPS)
         self._cleanup()
+
+    ##################################################
+    #       TO BE IMPLEMENTED BY AI SUBCLASSES
+    ##################################################
+
+    def _spawn_player(self):
+        """
+        Creates and returns a new Player in the center of the screen.
+        """
+        return Player(settings.WIDTH/2, settings.HEIGHT/2)
+
+    def _update_player(self):
+        """
+        Reads the current game state + has the player respond accordingly.
+        """
+        pass
+
+    def _handle_ai_spectator_controls(self, event):
+        """
+        Checks whether event was an AI Spectator mode
+        specific control, and handles it if so.
+        """
+        raise NotImplementedError("'_handle_ai_spectator_controls' "
+                "should only be called by AI_App")
 

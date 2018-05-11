@@ -116,3 +116,21 @@ class Player(Component):
                 play_sound("bangSmall")
                 return True
         return False
+
+    ##################################################
+    #       TO BE IMPLEMENTED BY AI SUBCLASSES
+    ##################################################
+
+    def sense(self, asteroids, bullets):
+        """
+        Checks the state of the world, and returns a feature
+        matrix to be used as input to the AI update function.
+        """
+        raise NotImplementedError("'sense' should only be called by AI_Player")
+
+    def update(self, sensor_data):
+        """
+        Runs the AI algorithm on sensor_data and
+        performs the appropiate actions in response.
+        """
+        raise NotImplementedError("'update' should only be called by AI_Player")
