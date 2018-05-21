@@ -1,3 +1,4 @@
+from ai.utils import LOG_FILENAME, SUMMARY_FILENAME
 import os
 
 class Generation(object):
@@ -5,12 +6,11 @@ class Generation(object):
     Base class for a generation of AI brains.
     """
 
-    META_FILENAME = "_meta.txt"
-
     def __init__(self, generation_number, ai_app, brains=None):
         self._generation_number = generation_number
         self._app = ai_app
         self._evaluated = False
+        self._results = None
         self._best_brain_id = -1
         if brains is not None:
             self._brains = brains
@@ -30,14 +30,40 @@ class Generation(object):
                 best_fitness = brain.fitness
         self._evaluated = True
 
-    def get_best_brain(self):
+    def get_evaluation_results(self):
         """
-        Returns the best brain of the generation.
+        Returns a dictionary containing brain ID to
+        fitness pairs, and some group statistics.
         """
         if not self._evaluated:
-            raise RuntimeError("Programmer Error: 'get_best_brain' " +
+            raise RuntimeError("Programmer Error: 'get_evaluation_results' " +
                     "used before generation was evaluated.")
-        return self._best_brain
+        if self._results is None:
+            fitnesses = [brain.fitness for brain in self._brains]
+            results = {i: fitness for i, fitness in enumerate(fitnesses)}
+            results["mean"] = float(sum(fitnesses)) / len(fitnesses)
+            results["max"] = max(fitnesses)
+            results["min"] = min(fitnesses)
+            self._results = results
+        return self._results
+
+    def get_best_brain_id(self):
+        """
+        Returns the ID of the generation's best brain.
+        """
+        if not self._evaluated:
+            raise RuntimeError("Programmer Error: 'get_best_brain_id' " +
+                    "used before generation was evaluated.")
+        return self._best_brain_id
+
+    def get_brain(self, id):
+        """
+        Returns the brain with the provided ID,
+        or None if no such brain exists.
+        """
+        if id < 0 or id >= len(self._brains):
+            raise ValueError("No brain exists with ID '%d'." % id)
+        return self._brains[id]
 
     def save(self, dirname):
         """
@@ -48,22 +74,38 @@ class Generation(object):
                     "'%s', already exists." % dirname)
         os.mkdir(dirname)
 
-        # Save the best brain in a designated file
-        if self._evaluated:
-            self._brains[self._best_brain_id].save(os.path.join(dirname,
-                    "%s-%02d-best.brn" % (self._get_algorithm_name().lower(),
-                    self._generation_number)))
-
         # Save all of the generation's brains
         for id, brain in enumerate(self._brains):
-            brain.save(os.path.join(dirname, "%s-%02d-%03d.brn" % \
+            brain.save(os.path.join(dirname, "%s-%03d-%03d.brn" % \
                     (self._get_algorithm_name().lower(),
                     self._generation_number, id)))
 
+        # Save the best brain in a designated file
+        if self._evaluated:
+            self._brains[self._best_brain_id].save(os.path.join(dirname,
+                    "%s-%03d-best.brn" % (self._get_algorithm_name().lower(),
+                    self._generation_number)))
+
+        # Save the evaluation results in a summary file
+        if self._evaluated:
+            results = self.get_evaluation_results()
+            summary_filename = os.path.join(dirname, SUMMARY_FILENAME)
+            with open(summary_filename, "w") as summary_file:
+                summary_file.write("")
+                summary_file.write("%s Generation #%03d SUMMARY\n\n" % \
+                        (self._get_algorithm_name(), self._generation_number))
+                summary_file.write("Fitness Stats:\n--------------\n")
+                summary_file.write("Max: %d\nMin: %d\nMean: %d\n\n" % \
+                        (results["max"], results["min"], results["mean"]))
+                summary_file.write("Individual Fitnesses:" +
+                        "\n--------------------\n")
+                for id in len(self._brains):
+                    summary_file.write("%03d: %f\n" % (id, results[id]))
+
         # Write the meta file
-        meta_filename = os.path.join(dirname, Generation.META_FILENAME)
+        meta_filename = os.path.join(dirname, META_FILENAME)
         with open(meta_filename, "w") as meta_file:
-            meta_file.write("%s Generation #%d\n" % \
+            meta_file.write("%s Generation #%03d\n" % \
                     (self._get_algorithm_name(), self._generation_number))
             meta_file.write("Total Brains in this Generation: %d\n" % \
                     len(self._brains))
@@ -82,7 +124,7 @@ class Generation(object):
         if not os.path.exists(dirname):
             raise ValueError("Director to load generation from, " +
                     "'%s', does not exist." % dirname)
-        meta_filename = os.path.join(dirname, Generation.META_FILENAME)
+        meta_filename = os.path.join(dirname, META_FILENAME)
         if not os.path.exists(meta_filename):
             raise ValueError("Could not find meta file " +
                     "'%s' for this generation." % meta_filename)
@@ -116,12 +158,11 @@ class Generation(object):
     #   TO BE IMPLEMENTED BY GENERATION SUBCLASSES
     ##################################################
 
-    @staticmethod
-    def _get_algorithm_name():
+    def _create_initial_brains(self):
         """
-        Returns the name of the algorithm used by the brains.
+        Creates the brains for the initial generation.
         """
-        raise NotImplementedError("'_get_algorithm_name' should be " +
+        raise NotImplementedError("'_create_initial_brains' should be " +
                 "implemented by Generation subclasses.")
 
     @staticmethod
@@ -133,13 +174,6 @@ class Generation(object):
         raise NotImplementedError("'_load_brain' should be " +
                 "implemented by Generation subclasses.")
 
-    def _create_initial_brains(self):
-        """
-        Creates the brains for the initial generation.
-        """
-        raise NotImplementedError("'_create_initial_brains' should be " +
-                "implemented by Generation subclasses.")
-
     def breed(self):
         """
         Breeds the brains in this generation amongst themselves,
@@ -148,3 +182,10 @@ class Generation(object):
         raise NotImplementedError("'breed' should be implemented by " +
                 "Generation subclasses.")
 
+    @staticmethod
+    def get_algorithm_name():
+        """
+        Returns the name of the algorithm used by the brains.
+        """
+        raise NotImplementedError("'get_algorithm_name' should be " +
+                "implemented by Generation subclasses.")

@@ -12,6 +12,6 @@ if __name__ == "__main__":
     if settings.PLAYER_MODE == settings.HUMAN:
         App().start_game()
     else:
-        if settings.AI_BRAIN == settings.SIMPLE:
+        if settings.GAME_ALGORITHM_ID == settings.SIMPLE:
             ai_brain = None
         AI_App().start_game(ai_brain)
