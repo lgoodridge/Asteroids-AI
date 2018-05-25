@@ -16,32 +16,34 @@ WHITE = (220, 220, 220)
 # Possible loss function shapes
 [LINEAR, HYPERBOLIC] = range(2)
 
-def angle_to(comp1, comp2):
+def angle_to(comp1, comp2, handle_looping=True):
     """
     Returns the angle comp1 would have to face to move toward comp2.
     """
-    return angle_to_xy(comp1.x, comp1.y, comp2.x, comp2.y)
+    return angle_to_xy(comp1.x, comp1.y, comp2.x, comp2.y, handle_looping)
 
-def angle_to_xy(x1, y1, x2, y2):
+def angle_to_xy(x1, y1, x2, y2, handle_looping=True):
     """
     Returns the angle between the pair of points.
     """
-    (x2, y2) = get_looped_point(x1, y1, x2, y2)
+    if handle_looping:
+        (x2, y2) = get_looped_point(x1, y1, x2, y2)
     dx = x2 - x1
     dy = y2 - y1
     return math.atan2(dx, -dy)
 
-def distance_between(comp1, comp2):
+def distance_between(comp1, comp2, handle_looping=True):
     """
     Returns the distance between the two components.
     """
-    return distance_between_xy(comp1.x, comp1.y, comp2.x, comp2.y)
+    return distance_between_xy(comp1.x, comp1.y, comp2.x, comp2.y, handle_looping)
 
-def distance_between_xy(x1, y1, x2, y2):
+def distance_between_xy(x1, y1, x2, y2, handle_looping=True):
     """
     Returns the distance between the pair of points.
     """
-    (x2, y2) = get_looped_point(x1, y1, x2, y2)
+    if handle_looping:
+        (x2, y2) = get_looped_point(x1, y1, x2, y2)
     dx = x2 - x1
     dy = y2 - y1
     return math.sqrt((dx * dx) + (dy * dy))

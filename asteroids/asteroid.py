@@ -83,7 +83,8 @@ class Asteroid(Component):
             new_y = random.randint(0, settings.HEIGHT)
 
         # Choose the angle (set toward the player if aimed)
-        angle = angle_to_xy(new_x, new_y, player.x, player.y)
+        angle = angle_to_xy(new_x, new_y, player.x, player.y,
+                handle_looping=False)
         if not aimed:
             angle += random.uniform(-math.pi/2, math.pi/2)
 

@@ -1,7 +1,7 @@
 """
 Entry point for the Asteroids Game / AI.
 
-Usage: python start.py
+Usage: python start.py [--help]
 """
 
 from ai.ai_app import AI_App

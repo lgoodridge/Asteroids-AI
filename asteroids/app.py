@@ -6,7 +6,6 @@ from asteroids.utils import render_on, BLACK, GRAY, WHITE
 import math
 import pygame
 import settings
-from ai.sensor import sense_eight_dir
 
 class App(object):
     """
