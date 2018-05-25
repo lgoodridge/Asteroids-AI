@@ -31,8 +31,8 @@ class Player(Component):
 
     def __init__(self, x, y):
         super(Player, self).__init__(Player.RADIUS, x, y, 0, 0)
+        self.rotation = 0
         self._boosting = False
-        self._rotation = 0
         self._spin = Player.NO_SPIN
 
     def move(self):
@@ -42,9 +42,9 @@ class Player(Component):
         super(Player, self).move()
         if self._boosting:
             new_vx = (self.speed * math.sin(self.angle)) + \
-                    (Player.BOOSTER_ACCELERATION * math.sin(self._rotation))
+                    (Player.BOOSTER_ACCELERATION * math.sin(self.rotation))
             new_vy = (self.speed * math.cos(self.angle)) + \
-                    (Player.BOOSTER_ACCELERATION * math.cos(self._rotation))
+                    (Player.BOOSTER_ACCELERATION * math.cos(self.rotation))
             new_speed = math.sqrt((new_vx * new_vx) + (new_vy * new_vy))
             new_angle = math.atan2(new_vx, new_vy)
         else:
@@ -52,7 +52,7 @@ class Player(Component):
             new_angle = self.angle
         self.speed = max(min(new_speed, Player.MAX_SPEED), 0)
         self.angle = new_angle % (2 * math.pi)
-        self._rotation = (self._rotation + self._spin * Player.ROTATE_SPEED) \
+        self.rotation = (self.rotation + self._spin * Player.ROTATE_SPEED) \
                 % (2*math.pi)
 
     def draw(self, screen):
@@ -62,7 +62,7 @@ class Player(Component):
         super(Player, self).draw(screen)
         unrotated_angles = [0, (3 * math.pi / 4), (5 * math.pi / 4)]
         vertices = get_rotated_vertices(unrotated_angles, self.x, self.y,
-                self.radius, self._rotation)
+                self.radius, self.rotation)
         vertices = vertices[:2] + [(self.x, self.y)] + vertices[2:]
         pygame.draw.polygon(screen, WHITE, vertices, 1)
 
@@ -99,7 +99,7 @@ class Player(Component):
         Shoots a bullet in the current direction if possible.
         """
         if len(bullets) < Bullet.MAX_ONSCREEN_BULLETS:
-            bullets.append(Bullet(self.x, self.y, self._rotation))
+            bullets.append(Bullet(self.x, self.y, self.rotation))
             play_sound("fire")
 
     def check_for_collisions(self, asteroids):

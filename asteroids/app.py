@@ -6,6 +6,7 @@ from asteroids.utils import render_on, BLACK, GRAY, WHITE
 import math
 import pygame
 import settings
+from ai.sensor import sense_eight_dir
 
 class App(object):
     """
@@ -110,7 +111,8 @@ class App(object):
         self._last_spawn_time = pygame.time.get_ticks()
         self._spawn_period = settings.INITIAL_SPAWN_PERIOD
 
-        # Start the BGM
+        # Reset sounds and start the BGM
+        stop_all_sounds()
         play_sound("bgm", -1)
 
         # Reset the screen, if necessary
