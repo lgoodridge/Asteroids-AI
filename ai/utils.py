@@ -9,28 +9,30 @@ LOG_FILENAME = "_log.txt"
 META_FILENAME = "_meta.txt"
 SUMMARY_FILENAME = "_summary.txt"
 
-# Relates each algorithm ID to a tuple containing
-# the corresponding AI Brain and Generation classes
-_ALGORITHM_ID_TO_CLASS_DATA = {
-    settings.SIMPLE: (None, None)
-}
-
 def algorithm_id_to_ai_brain_class(algorithm_id):
     """
     Returns the AI Brain class corresponding to the
     provided algorithm ID (as defined in settings).
     """
-    if algorithm_id not in _ALGORITHM_ID_TO_CLASS_DATA:
-        raise ValueError(("Programmer Error: '%d' not a recognized"
-            "algorithm ID") % algorithm_id)
-    return _ALGORITHM_ID_TO_CLASS_DATA[algorithm_id][0]
+    return _algorithm_id_to_class_data(algorithm_id)[0]
 
 def algorithm_id_to_generation_class(algorithm_id):
     """
     Returns the Generation class corresponding to the
     provided algorithm ID (as defined in settings).
     """
-    if algorithm_id not in _ALGORITHM_ID_TO_CLASS_DATA:
+    return _algorithm_id_to_class_data(algorithm_id)[1]
+
+def _algorithm_id_to_class_data(algorithm_id):
+    """
+    Relates each algorithm ID to a tuple containing
+    the corresponding AI Brain and Generation classes
+    """
+    if algorithm_id == settings.SIMPLE:
+        from simple.simple_brain import Simple_Brain
+        from simple.simple_generation import Simple_Generation
+        return (Simple_Brain, Simple_Generation)
+    else:
         raise ValueError(("Programmer Error: '%d' not a recognized"
             "algorithm ID") % algorithm_id)
-    return _ALGORITHM_ID_TO_CLASS_DATA[algorithm_id][1]
+

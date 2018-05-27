@@ -158,7 +158,8 @@ class App(object):
             Asteroid.spawn(self.asteroids, self.player, True)
 
         # Update the player with the current game state
-        self._update_player()
+        if not self.player.destroyed:
+            self._update_player()
 
         # Move all game components
         self.player.move()

@@ -16,9 +16,9 @@ class AI_Player(Player):
         """
         return self._brain.sense(self, asteroids, bullets)
 
-    def update(self, sensor_data):
+    def update(self, bullets, sensor_data):
         """
         Runs the AI algorithm on sensor_data and
         performs the appropiate actions in response.
         """
-        return self._brain.update(self, sensor_data)
+        return self._brain.update(self, bullets, sensor_data)

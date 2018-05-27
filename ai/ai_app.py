@@ -19,7 +19,7 @@ class AI_App(App):
         Reads the current game state + has the player respond accordingly.
         """
         sensor_data = self.player.sense(self.asteroids, self.bullets)
-        self.player.update(sensor_data)
+        self.player.update(self.bullets, sensor_data)
 
     def _handle_ai_spectator_controls(self, event):
         """
@@ -42,17 +42,32 @@ class AI_App(App):
         """
         self._ai_brain = ai_brain
 
+        # Turn off sounds for the duration of the simulation
+        previous_play_sfx = settings.PLAY_SFX
+        settings.PLAY_SFX = False
+
         # Prepare the simulation
         if not self._has_started:
             self._setup(use_screen=False)
+        else:
+            self._running = True
         self._load_level()
 
         # Run it until the player dies
         while self._running:
             self._update()
-        self._cleanup()
+
+        # Clean up the app for potential reuse
+        settings.PLAY_SFX = previous_play_sfx
 
         # Return the fitness score
         fitness = ((self.score * settings.FITNESS_SCORE_WEIGHT) +
                 (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT))
         return fitness
+
+    def cleanup_simulation(self):
+        """
+        Cleans up the app after all simulations are run.
+        """
+        self.ai_brain = None
+        self._cleanup()

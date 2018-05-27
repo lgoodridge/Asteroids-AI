@@ -1,5 +1,6 @@
-from ai.utils import LOG_FILENAME, SUMMARY_FILENAME
+from ai.utils import META_FILENAME, SUMMARY_FILENAME
 import os
+import settings
 
 class Generation(object):
     """
@@ -15,7 +16,8 @@ class Generation(object):
         if brains is not None:
             self._brains = brains
         else:
-            self._brains = _create_initial_brains()
+            self._brains = self._create_initial_brains(
+                    settings.GENERATION_POPULATION)
 
     def evaluate_fitnesses(self):
         """
@@ -77,13 +79,13 @@ class Generation(object):
         # Save all of the generation's brains
         for id, brain in enumerate(self._brains):
             brain.save(os.path.join(dirname, "%s-%03d-%03d.brn" % \
-                    (self._get_algorithm_name().lower(),
+                    (self.get_algorithm_name().lower(),
                     self._generation_number, id)))
 
         # Save the best brain in a designated file
         if self._evaluated:
             self._brains[self._best_brain_id].save(os.path.join(dirname,
-                    "%s-%03d-best.brn" % (self._get_algorithm_name().lower(),
+                    "%s-%03d-best.brn" % (self.get_algorithm_name().lower(),
                     self._generation_number)))
 
         # Save the evaluation results in a summary file
@@ -93,27 +95,28 @@ class Generation(object):
             with open(summary_filename, "w") as summary_file:
                 summary_file.write("")
                 summary_file.write("%s Generation #%03d SUMMARY\n\n" % \
-                        (self._get_algorithm_name(), self._generation_number))
+                        (self.get_algorithm_name(), self._generation_number))
                 summary_file.write("Fitness Stats:\n--------------\n")
                 summary_file.write("Max: %d\nMin: %d\nMean: %d\n\n" % \
                         (results["max"], results["min"], results["mean"]))
                 summary_file.write("Individual Fitnesses:" +
-                        "\n--------------------\n")
-                for id in len(self._brains):
+                        "\n---------------------\n")
+                for id in range(len(self._brains)):
                     summary_file.write("%03d: %f\n" % (id, results[id]))
 
         # Write the meta file
         meta_filename = os.path.join(dirname, META_FILENAME)
         with open(meta_filename, "w") as meta_file:
             meta_file.write("%s Generation #%03d\n" % \
-                    (self._get_algorithm_name(), self._generation_number))
+                    (self.get_algorithm_name(), self._generation_number))
             meta_file.write("Total Brains in this Generation: %d\n" % \
                     len(self._brains))
             meta_file.write("Evaluated: %s\n" % \
                     ("YES" if self._evaluated else "NO"))
             best_brain_id = self._best_brain_id if self._evaluated else -1
-            best_fitness = self._brains[best_brain_id] if self._evaluated else -1
-            meta_file.write("Best Brain: %d\n" % best_brain_id)
+            best_fitness = self._brains[best_brain_id].fitness \
+                    if self._evaluated else -1
+            meta_file.write("Best Brain: %03d\n" % best_brain_id)
             meta_file.write("Best Fitness: %f\n" % best_fitness)
 
     @classmethod
@@ -133,17 +136,17 @@ class Generation(object):
         brains = []
         for filename in os.listdir(dirname):
             if filename.endswith(".brn"):
-                brains.append(self._load_brain(filename))
+                brains.append(cls._load_brain(filename))
 
         # Load the metafile
         with open(meta_filename, "r") as meta_file:
-            line = meta_file.read()
+            line = meta_file.readline()
             generation_number = int(line.split("#")[1])
-            meta_file.read()
-            line = meta_file.read()
+            meta_file.readline()
+            line = meta_file.readline()
             evaluated = line.split(": ")[1] == "YES"
             if evaluated:
-                line = meta_file.read()
+                line = meta_file.readline()
                 best_brain_id = int(line.split(": ")[1])
             else:
                 best_brain_id = -1
@@ -158,20 +161,11 @@ class Generation(object):
     #   TO BE IMPLEMENTED BY GENERATION SUBCLASSES
     ##################################################
 
-    def _create_initial_brains(self):
+    def _create_initial_brains(self, num_brains):
         """
         Creates the brains for the initial generation.
         """
         raise NotImplementedError("'_create_initial_brains' should be " +
-                "implemented by Generation subclasses.")
-
-    @staticmethod
-    def _load_brain(filename):
-        """
-        Calls the load function of the appropiate
-        AI Brain subclass and returns the result.
-        """
-        raise NotImplementedError("'_load_brain' should be " +
                 "implemented by Generation subclasses.")
 
     def breed(self):
@@ -181,6 +175,15 @@ class Generation(object):
         """
         raise NotImplementedError("'breed' should be implemented by " +
                 "Generation subclasses.")
+
+    @staticmethod
+    def _load_brain(filename):
+        """
+        Calls the load function of the appropiate
+        AI Brain subclass and returns the result.
+        """
+        raise NotImplementedError("'_load_brain' should be " +
+                "implemented by Generation subclasses.")
 
     @staticmethod
     def get_algorithm_name():

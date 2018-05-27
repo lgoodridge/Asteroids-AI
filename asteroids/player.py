@@ -128,7 +128,7 @@ class Player(Component):
         """
         raise NotImplementedError("'sense' should only be called by AI_Player")
 
-    def update(self, sensor_data):
+    def update(self, bullets, sensor_data):
         """
         Runs the AI algorithm on sensor_data and
         performs the appropiate actions in response.

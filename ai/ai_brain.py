@@ -14,7 +14,7 @@ class AI_Brain(object):
         raise NotImplementedError("'sense' should be implemented by " +
                 "AI_Brain subclasses.")
 
-    def update(self, player, sensor_data):
+    def update(self, player, bullets, sensor_data):
         """
         Runs the AI algorithm on sensor_data and
         performs the appropiate actions in response.
@@ -33,7 +33,7 @@ class AI_Brain(object):
 
     def mutate(self, mutation_rate):
         """
-        Mutates the network at the specified.
+        Mutates the network at the specified rate.
         """
         raise NotImplementedError("'mutate' should be implemented by " +
                 "AI_Brain subclasses.")
