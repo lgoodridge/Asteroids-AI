@@ -13,6 +13,10 @@ __pycache__/
 data/*
 !data/readme
 
+# Experiments Folder
+experiments/*
+!experiments/readme
+
 # Temp Files
 .*.sw*
 
