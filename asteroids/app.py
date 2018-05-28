@@ -57,7 +57,6 @@ class App(object):
         self.run_time = 0
 
         # Initialize score and time trackers
-        self._start_time = 0
         self._last_spawn_time = 0
         self._spawn_period = 0
 
@@ -106,8 +105,7 @@ class App(object):
         self.run_time = 0
 
         # Load initial time tracker state
-        self._start_time = pygame.time.get_ticks()
-        self._last_spawn_time = pygame.time.get_ticks()
+        self._last_spawn_time = 0
         self._spawn_period = settings.INITIAL_SPAWN_PERIOD
 
         # Reset sounds and start the BGM
@@ -149,12 +147,17 @@ class App(object):
         self.bullets = filter(lambda x: not x.destroyed, self.bullets)
         self.asteroids = filter(lambda x: not x.destroyed, self.asteroids)
 
+        # Get the approximate number of milliseconds since last asteroid spawn
+        # Since the game operates on frames (the number of update iterations),
+        # we multiply the frame difference by (1000 ms / s) * (1s / 60 frames)
+        frames_since_last_spawn = (self.run_time - self._last_spawn_time)
+        ms_since_last_spawn = frames_since_last_spawn * 1000.0 / 60.0
+
         # If the spawn period has expired, spawn a new aimed Asteroid
-        time_since_last_spawn = pygame.time.get_ticks() - self._last_spawn_time
-        if time_since_last_spawn > self._spawn_period:
+        if ms_since_last_spawn > self._spawn_period:
             new_spawn_period = self._spawn_period - settings.SPAWN_PERIOD_DEC
             self._spawn_period = max(new_spawn_period, settings.MIN_SPAWN_PERIOD)
-            self._last_spawn_time = pygame.time.get_ticks()
+            self._last_spawn_time = self.run_time
             Asteroid.spawn(self.asteroids, self.player, True)
 
         # Update the player with the current game state
@@ -232,6 +235,10 @@ class App(object):
             game_over_rect = render_on(game_over_text, self.screen,
                     settings.WIDTH/2, settings.HEIGHT/2)
             render_rects.append(game_over_rect)
+
+        # Render AI Spectator mode components if necessary
+        ai_render_rects = self._render_ai_spectator_overlay()
+        render_rects.extend(ai_render_rects)
 
         # Actually re-render all collected rectangles
         pygame.display.update(render_rects)
@@ -349,6 +356,13 @@ class App(object):
         Reads the current game state + has the player respond accordingly.
         """
         pass
+
+    def _render_ai_spectator_overlay(self):
+        """
+        Renders overlay components used in AI Spectator mode.
+        Returns a list of rectangles to be re-rendered.
+        """
+        return []
 
     def _handle_ai_spectator_controls(self, event):
         """

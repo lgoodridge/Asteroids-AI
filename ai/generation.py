@@ -97,12 +97,12 @@ class Generation(object):
                 summary_file.write("%s Generation #%03d SUMMARY\n\n" % \
                         (self.get_algorithm_name(), self._generation_number))
                 summary_file.write("Fitness Stats:\n--------------\n")
-                summary_file.write("Max: %d\nMin: %d\nMean: %d\n\n" % \
+                summary_file.write("Max: %.2f\nMin: %.2f\nMean: %.2f\n\n" % \
                         (results["max"], results["min"], results["mean"]))
                 summary_file.write("Individual Fitnesses:" +
                         "\n---------------------\n")
                 for id in range(len(self._brains)):
-                    summary_file.write("%03d: %f\n" % (id, results[id]))
+                    summary_file.write("%03d: %.2f\n" % (id, results[id]))
 
         # Write the meta file
         meta_filename = os.path.join(dirname, META_FILENAME)
@@ -117,7 +117,7 @@ class Generation(object):
             best_fitness = self._brains[best_brain_id].fitness \
                     if self._evaluated else -1
             meta_file.write("Best Brain: %03d\n" % best_brain_id)
-            meta_file.write("Best Fitness: %f\n" % best_fitness)
+            meta_file.write("Best Fitness: %.2f\n" % best_fitness)
 
     @classmethod
     def load(cls, dirname, ai_app):

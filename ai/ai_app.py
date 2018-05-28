@@ -1,5 +1,6 @@
 from ai.ai_player import AI_Player
 from asteroids.app import App
+from asteroids.utils import render_on, WHITE
 import settings
 
 class AI_App(App):
@@ -21,12 +22,43 @@ class AI_App(App):
         sensor_data = self.player.sense(self.asteroids, self.bullets)
         self.player.update(self.bullets, sensor_data)
 
+    def _render_ai_spectator_overlay(self):
+        """
+        Renders overlay components used in AI Spectator mode.
+        Returns a list of rectangles to be re-rendered.
+        """
+        render_rects = []
+
+        # Show fitness stats in top-left, under Score, if necessary
+        if settings.SHOW_SCORE:
+            run_time_text = self._small_font.render("Runtime: %ds (%d)" %
+                    (self.run_time/60, self.run_time), True, WHITE)
+            run_time_rect = render_on(run_time_text, self.screen,
+                    run_time_text.get_width()/2, run_time_text.get_height()*3/2)
+            render_rects.append(run_time_rect)
+
+            fitness_text = self._small_font.render("Fitness: %d" %
+                    self._get_fitness(), True, WHITE)
+            fitness_rect = render_on(fitness_text, self.screen,
+                    fitness_text.get_width()/2, fitness_text.get_height()*5/2)
+            render_rects.append(fitness_rect)
+
+        # Return the rects to be re-rendered
+        return render_rects
+
     def _handle_ai_spectator_controls(self, event):
         """
         Checks whether event was an AI Spectator mode
         specific control, and handles it if so.
         """
         pass
+
+    def _get_fitness(self):
+        """
+        Returns the current fitness score.
+        """
+        return ((self.score * settings.FITNESS_SCORE_WEIGHT) +
+                (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT))
 
     def start_game(self, ai_brain):
         """
@@ -61,9 +93,7 @@ class AI_App(App):
         settings.PLAY_SFX = previous_play_sfx
 
         # Return the fitness score
-        fitness = ((self.score * settings.FITNESS_SCORE_WEIGHT) +
-                (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT))
-        return fitness
+        return self._get_fitness()
 
     def cleanup_simulation(self):
         """
