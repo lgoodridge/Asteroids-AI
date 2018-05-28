@@ -86,6 +86,12 @@ MIN_SPAWN_PERIOD = 1000
 # Game update speed limit (0 means no limit)
 MAX_FPS = 60
 
+# Whether to use a predetermined random seed for the RNG
+USE_PREDETERMINED_SEED = False
+
+# Predetermined seed to use if specified
+PREDETERMINED_SEED = 0
+
 ##################################################
 #               IN-GAME SETTINGS
 ##################################################
@@ -140,17 +146,22 @@ import click
         default=None, help="Weight of score in the fitness function.")
 @click.option("--fitness-runtime-weight", type=float,
         default=None, help="Weight of runtime int he fitness function.")
+@click.option("--use-predetermined-seed", type=click.Choice(["true", "false"]),
+        default=None, help="Whether to use a predetermined RNG seed.")
+@click.option("--predetermined-seed", type=int,
+        default=None, help="Predetermined seed to use if specified.")
 
 def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         game_ai_brain, experiment_algorithm_id, experiment_directory,
         experiment_echo_logs, max_generations, progress_improvement_threshold,
         max_generations_without_progress, generation_population, mutation_rate,
-        fitness_score_weight, fitness_runtime_weight):
+        fitness_score_weight, fitness_runtime_weight, use_predetermined_seed,
+        predetermined_seed):
     """
     Configures settings according to the command line arguments.
 
     NOTE: To support a new setting, add it to the click options above,
-        the method arguments, the list of gloval variables, and the
+        the method arguments, the list of global variables, and the
         code block in the method body.
 
     EXTRA NOTE: Currently investigating other ways of doing this that
@@ -160,7 +171,8 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
             EXPERIMENT_ALGORITHM_ID, EXPERIMENT_DIRECTORY, EXPERIMENT_ECHO_LOGS, \
             MAX_GENERATIONS, PROGRESS_IMPROVEMENT_THRESHOLD, \
             MAX_GENERATIONS_WITHOUT_PROGRESS, GENERATION_POPULATION, \
-            MUTATION_RATE, FITNESS_SCORE_WEIGHT, FITNESS_RUNTIME_WEIGHT
+            MUTATION_RATE, FITNESS_SCORE_WEIGHT, FITNESS_RUNTIME_WEIGHT, \
+            USE_PREDETERMINED_SEED, PREDETERMINED_SEED
     if run_mode is not None:
         RUN_MODE = {"game": GAME, "experiment": EXPERIMENT}[run_mode]
     if player_mode is not None:
@@ -189,3 +201,8 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         FITNESS_SCORE_WEIGHT = fitness_score_weight
     if fitness_runtime_weight is not None:
         FITNESS_RUNTIME_WEIGHT = fitness_runtime_weight
+    if use_predetermined_seed is not None:
+        USE_PREDETERMINED_SEED = {"true": True, "false": False}\
+                [use_predetermined_seed]
+    if predetermined_seed is not None:
+        PREDETERMINED_SEED = predetermined_seed

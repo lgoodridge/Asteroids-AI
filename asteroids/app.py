@@ -5,6 +5,7 @@ from asteroids.sound import load_sounds, play_sound, stop_sound, stop_all_sounds
 from asteroids.utils import render_on, BLACK, GRAY, WHITE
 import math
 import pygame
+import random
 import settings
 
 class App(object):
@@ -92,6 +93,11 @@ class App(object):
         """
         self._state = App.RUNNING
 
+        # Use predetermined RNG seed if specified
+        if settings.USE_PREDETERMINED_SEED:
+            self._prev_rng_state = random.getstate()
+            random.seed(settings.PREDETERMINED_SEED)
+
         # Load initial game components
         self.player = self._spawn_player()
         self.bullets = []
@@ -142,6 +148,10 @@ class App(object):
                 self._load_game_over()
             else:
                 self._running = False
+
+            # Restore RNG state as well if necessary
+            if settings.USE_PREDETERMINED_SEED:
+                random.setstate(self._prev_rng_state)
 
         # Remove destroyed components
         self.bullets = filter(lambda x: not x.destroyed, self.bullets)
