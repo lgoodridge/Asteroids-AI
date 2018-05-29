@@ -55,6 +55,7 @@ class App(object):
 
         # Iniitialize performance trackers
         self.score = 0
+        self.asteroids_hit = 0
         self.run_time = 0
 
         # Initialize score and time trackers
@@ -108,6 +109,7 @@ class App(object):
 
         # Initialize performance trackers
         self.score = 0
+        self.asteroids_hit = 0
         self.run_time = 0
 
         # Load initial time tracker state
@@ -186,7 +188,9 @@ class App(object):
 
         # Age and check for bullet collisions with asteroids
         for bullet in self.bullets:
-            self.score += int(bullet.check_for_collisions(self.asteroids))
+            bullet_score = bullet.check_for_collisions(self.asteroids)
+            self.score += bullet_score
+            self.asteroids_hit += int(bullet_score > 0)
             bullet.increase_age()
 
         # Increment run time if the player is still alive

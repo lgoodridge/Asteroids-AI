@@ -31,6 +31,7 @@ class Player(Component):
 
     def __init__(self, x, y):
         super(Player, self).__init__(Player.RADIUS, x, y, 0, 0)
+        self.num_bullets_fired = 0
         self.rotation = 0
         self._boosting = False
         self._spin = Player.NO_SPIN
@@ -100,6 +101,7 @@ class Player(Component):
         """
         if len(bullets) < Bullet.MAX_ONSCREEN_BULLETS:
             bullets.append(Bullet(self.x, self.y, self.rotation))
+            self.num_bullets_fired += 1
             play_sound("fire")
 
     def check_for_collisions(self, asteroids):

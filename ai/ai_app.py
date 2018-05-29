@@ -37,10 +37,16 @@ class AI_App(App):
                     run_time_text.get_width()/2, run_time_text.get_height()*3/2)
             render_rects.append(run_time_rect)
 
+            accuracy_text = self._small_font.render("Accuracy: %.2f" %
+                    self._get_accuracy(), True, WHITE)
+            accuracy_rect = render_on(accuracy_text, self.screen,
+                    accuracy_text.get_width()/2, accuracy_text.get_height()*5/2)
+            render_rects.append(accuracy_rect)
+
             fitness_text = self._small_font.render("Fitness: %d" %
                     self._get_fitness(), True, WHITE)
             fitness_rect = render_on(fitness_text, self.screen,
-                    fitness_text.get_width()/2, fitness_text.get_height()*5/2)
+                    fitness_text.get_width()/2, fitness_text.get_height()*7/2)
             render_rects.append(fitness_rect)
 
         # Return the rects to be re-rendered
@@ -53,12 +59,21 @@ class AI_App(App):
         """
         pass
 
+    def _get_accuracy(self):
+        """
+        Returns the player's current accuracy.
+        """
+        if self.player.num_bullets_fired == 0:
+            return 0.0
+        return 1.0 * self.asteroids_hit / self.player.num_bullets_fired
+
     def _get_fitness(self):
         """
         Returns the current fitness score.
         """
         return ((self.score * settings.FITNESS_SCORE_WEIGHT) +
-                (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT))
+                (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT) +
+                (self._get_accuracy() * settings.FITNESS_ACCURACY_WEIGHT))
 
     def start_game(self, ai_brain):
         """

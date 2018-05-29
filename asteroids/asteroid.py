@@ -17,6 +17,9 @@ class Asteroid(Component):
     # The maximum speed for each asteroid size
     SIZE_TO_MAX_SPEED = [0, 2, 1.5, 1]
 
+    # The score for each asteroid size
+    SIZE_TO_SCORE = [0, 4, 2, 1]
+
     # The "bang" sound for each asteroid size
     SIZE_TO_BANG_SOUND = ["", "bangSmall", "bangMedium", "bangLarge"]
 
@@ -132,3 +135,9 @@ class Asteroid(Component):
                     self.speed, Asteroid.SIZE_TO_MAX_SPEED[self._size-1]),
                     (self.angle + random.uniform(0, math.pi/6)) % 2*math.pi))
         play_sound(Asteroid.SIZE_TO_BANG_SOUND[self._size])
+
+    def get_score(self):
+        """
+        Returns the score associated with shooting an asteroid.
+        """
+        return Asteroid.SIZE_TO_SCORE[self._size]
