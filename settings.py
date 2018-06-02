@@ -51,6 +51,10 @@ MAX_GENERATIONS_WITHOUT_PROGRESS = 5
 # Number of brains in each generation
 GENERATION_POPULATION = 100
 
+# Percentage of the current generation to
+# keep when breeding the next generation
+GENERATION_SURVIVOR_RATE = 0.25
+
 # Rate of chromosome mutations when
 # breeding to create the next generation
 MUTATION_RATE = 0.05

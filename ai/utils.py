@@ -9,20 +9,6 @@ LOG_FILENAME = "_log.txt"
 META_FILENAME = "_meta.txt"
 SUMMARY_FILENAME = "_summary.txt"
 
-def algorithm_id_to_ai_brain_class(algorithm_id):
-    """
-    Returns the AI Brain class corresponding to the
-    provided algorithm ID (as defined in settings).
-    """
-    return _algorithm_id_to_class_data(algorithm_id)[0]
-
-def algorithm_id_to_generation_class(algorithm_id):
-    """
-    Returns the Generation class corresponding to the
-    provided algorithm ID (as defined in settings).
-    """
-    return _algorithm_id_to_class_data(algorithm_id)[1]
-
 def _algorithm_id_to_class_data(algorithm_id):
     """
     Relates each algorithm ID to a tuple containing
@@ -36,3 +22,16 @@ def _algorithm_id_to_class_data(algorithm_id):
         raise ValueError(("Programmer Error: '%d' not a recognized"
             "algorithm ID") % algorithm_id)
 
+def algorithm_id_to_ai_brain_class(algorithm_id):
+    """
+    Returns the AI Brain class corresponding to the
+    provided algorithm ID (as defined in settings).
+    """
+    return _algorithm_id_to_class_data(algorithm_id)[0]
+
+def algorithm_id_to_generation_class(algorithm_id):
+    """
+    Returns the Generation class corresponding to the
+    provided algorithm ID (as defined in settings).
+    """
+    return _algorithm_id_to_class_data(algorithm_id)[1]

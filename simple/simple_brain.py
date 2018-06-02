@@ -1,6 +1,5 @@
 from ai.ai_brain import AI_Brain
 from ai.sensor import sense_eight_dir
-from ai.utils import algorithm_id_to_ai_brain_class
 from asteroids.utils import LINEAR, HYPERBOLIC
 import os
 
@@ -19,13 +18,14 @@ class Simple_Brain(AI_Brain):
         """
         return sense_eight_dir(player, asteroids, 300, shape=LINEAR)
 
-    def update(self, player, bullets, sensor_data):
+    def think(self, player, bullets, sensor_data):
         """
         Runs the AI algorithm on sensor_data and
-        performs the appropiate actions in response.
+        outputs a decision vector in response.
+
+        This AI just spins and shoots when possible.
         """
-        player.start_spinning(True)
-        player.shoot(bullets)
+        return [True, False, True, True]
 
     def crossover(self, other_brain):
         """

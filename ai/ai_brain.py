@@ -9,17 +9,17 @@ class AI_Brain(object):
     def sense(self, player, asteroids, bullets):
         """
         Checks the state of the world, and returns a feature
-        matrix to be used as input to the AI update function.
+        matrix to be used as input to the AI decide function.
         """
         raise NotImplementedError("'sense' should be implemented by " +
                 "AI_Brain subclasses.")
 
-    def update(self, player, bullets, sensor_data):
+    def think(self, player, bullets, sensor_data):
         """
         Runs the AI algorithm on sensor_data and
-        performs the appropiate actions in response.
+        outputs a decision vector in response.
         """
-        raise NotImplementedError("'update' should be implemented by " +
+        raise NotImplementedError("'think' should be implemented by " +
                 "AI_Brain subclasses.")
 
     def crossover(self, other_brain):
