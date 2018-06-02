@@ -29,12 +29,19 @@ class Player(Component):
     # Possible spin directions
     COUNTER_CLOCKWISE, NO_SPIN, CLOCKWISE = [-1, 0, 1]
 
+    # Maximum number of bullets that may be onscreen at once
+    MAX_ONSCREEN_BULLETS = 4
+
+    # Minimum number of frames between each shot
+    RELOAD_TIME = 10
+
     def __init__(self, x, y):
         super(Player, self).__init__(Player.RADIUS, x, y, 0, 0)
         self.num_bullets_fired = 0
         self.rotation = 0
         self._boosting = False
         self._spin = Player.NO_SPIN
+        self._remaining_reload_time = 0
 
     def move(self):
         """
@@ -99,9 +106,11 @@ class Player(Component):
         """
         Shoots a bullet in the current direction if possible.
         """
-        if len(bullets) < Bullet.MAX_ONSCREEN_BULLETS:
+        if len(bullets) < Player.MAX_ONSCREEN_BULLETS and \
+                self._remaining_reload_time == 0:
             bullets.append(Bullet(self.x, self.y, self.rotation))
             self.num_bullets_fired += 1
+            self._remaining_reload_time = Player.RELOAD_TIME
             play_sound("fire")
 
     def check_for_collisions(self, asteroids):
@@ -132,7 +141,9 @@ class Player(Component):
 
     def update(self, bullets, sensor_data):
         """
-        Runs the AI algorithm on sensor_data and
-        performs the appropiate actions in response.
+        Updates any time dependent player state, then runs
+        the AI algorithm on sensor_data, and performs the
+        appropiate actions in response.
         """
-        raise NotImplementedError("'update' should only be called by AI_Player")
+        if self._remaining_reload_time != 0:
+            self._remaining_reload_time -= 1

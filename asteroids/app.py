@@ -369,7 +369,7 @@ class App(object):
         """
         Reads the current game state + has the player respond accordingly.
         """
-        pass
+        self.player.update(self.bullets, None)
 
     def _render_ai_spectator_overlay(self):
         """

@@ -11,9 +11,6 @@ class Bullet(Component):
     RADIUS = 3
     SPEED = 10
 
-    # Maximum number of bullets that may be onscreen at once
-    MAX_ONSCREEN_BULLETS = 4
-
     # Maximum number of steps a bullet will stay on screen
     MAX_LIFESPAN = 40
 
