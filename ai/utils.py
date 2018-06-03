@@ -18,6 +18,10 @@ def _algorithm_id_to_class_data(algorithm_id):
         from simple.simple_brain import Simple_Brain
         from simple.simple_generation import Simple_Generation
         return (Simple_Brain, Simple_Generation)
+    elif algorithm_id == settings.NN:
+        from nn.nn_brain import NN_Brain
+        from nn.nn_generation import NN_Generation
+        return (NN_Brain, NN_Generation)
     else:
         raise ValueError(("Programmer Error: '%d' not a recognized"
             "algorithm ID") % algorithm_id)

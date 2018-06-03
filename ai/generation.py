@@ -136,7 +136,7 @@ class Generation(object):
         brains = []
         for filename in os.listdir(dirname):
             if filename.endswith(".brn"):
-                brains.append(cls._load_brain(filename))
+                brains.append(cls._load_brain(os.path.join(dirname, filename)))
 
         # Load the metafile
         with open(meta_filename, "r") as meta_file:
