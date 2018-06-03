@@ -71,9 +71,11 @@ class AI_App(App):
         """
         Returns the current fitness score.
         """
-        return ((self.score * settings.FITNESS_SCORE_WEIGHT) +
-                (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT) +
-                (self._get_accuracy() * settings.FITNESS_ACCURACY_WEIGHT))
+        num_missed_shots = self.player.num_bullets_fired - self.asteroids_hit
+        raw_fitness = ((self.score * settings.FITNESS_SCORE_WEIGHT) +
+                (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT) -
+                (num_missed_shots * settings.FITNESS_MISSED_SHOT_PENALTY))
+        return max(raw_fitness, 0)
 
     def start_game(self, ai_brain):
         """

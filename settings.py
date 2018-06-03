@@ -61,8 +61,8 @@ MUTATION_RATE = 0.05
 
 # Weights of each variable in the fitness function
 FITNESS_SCORE_WEIGHT = 1.0
-FITNESS_ACCURACY_WEIGHT = 0.0
 FITNESS_RUN_TIME_WEIGHT = 5.0 / 60.0
+FITNESS_MISSED_SHOT_PENALTY = 0.5
 
 ##################################################
 #             NEURAL NETWORK SETTINGS
@@ -172,6 +172,8 @@ import click
         default=None, help="Weight of score in the fitness function.")
 @click.option("--fitness-runtime-weight", type=float,
         default=None, help="Weight of runtime in the fitness function.")
+@click.option("--fitness-missed-shot-penalty", type=float,
+        default=None, help="Fitness penalty for each missed shot.")
 @click.option("--num-hidden-layers", type=int,
         default=None, help="Number of hidden layers in the neural network.")
 @click.option("--hidden-layer-size", type=int,
@@ -192,8 +194,8 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         game_ai_brain, experiment_algorithm_id, experiment_directory,
         experiment_echo_logs, max_generations, progress_improvement_threshold,
         max_generations_without_progress, generation_population, mutation_rate,
-        fitness_score_weight, fitness_runtime_weight, num_hidden_layers,
-        hidden_layer_size, hidden_layer_activation_fn,
+        fitness_score_weight, fitness_runtime_weight, fitness_missed_shot_penalty,
+        num_hidden_layers, hidden_layer_size, hidden_layer_activation_fn,
         output_activation_threshold, crossover_mechanism, use_predetermined_seed,
         predetermined_seed):
     """
@@ -212,9 +214,9 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
             MAX_GENERATIONS, PROGRESS_IMPROVEMENT_THRESHOLD, \
             MAX_GENERATIONS_WITHOUT_PROGRESS, GENERATION_POPULATION, \
             MUTATION_RATE, FITNESS_SCORE_WEIGHT, FITNESS_RUNTIME_WEIGHT, \
-            NUM_HIDDEN_LAYERS, HIDDEN_LAYER_SIZE, HIDDEN_LAYER_ACTIVATION_FN, \
-            OUTPUT_ACTIVATION_THRESHOLD, CROSSOVER_MECHANISM, \
-            USE_PREDETERMINED_SEED, PREDETERMINED_SEED
+            FITNESS_MISSED_SHOT_PENALTY, NUM_HIDDEN_LAYERS, HIDDEN_LAYER_SIZE, \
+            HIDDEN_LAYER_ACTIVATION_FN, OUTPUT_ACTIVATION_THRESHOLD, \
+            CROSSOVER_MECHANISM, USE_PREDETERMINED_SEED, PREDETERMINED_SEED
     if run_mode is not None:
         RUN_MODE = {"game": GAME, "experiment": EXPERIMENT}[run_mode]
     if player_mode is not None:
@@ -244,6 +246,8 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         FITNESS_SCORE_WEIGHT = fitness_score_weight
     if fitness_runtime_weight is not None:
         FITNESS_RUNTIME_WEIGHT = fitness_runtime_weight
+    if fitness_missed_shot_penalty is not None:
+        FITNESS_MISSED_SHOT_PENALTY = fitness_missed_shot_penalty
     if num_hidden_layers is not None:
         NUM_HIDDEN_LAYERS = num_hidden_layers
     if hidden_layer_size is not None:
