@@ -18,7 +18,7 @@ RUN_MODE = GAME
 PLAYER_MODE = HUMAN
 
 # Algorithm to use when an AI is playing the game
-[SIMPLE] = range(1)
+[SIMPLE, NN] = range(2)
 GAME_ALGORITHM_ID = SIMPLE
 
 # Path to the AI brain to use when playing the game
@@ -30,7 +30,7 @@ EXPERIMENT_ALGORITHM_ID = SIMPLE
 # Path to the directory used by the experiment:
 # If the directory contains the work of a previous experiment,
 # it will be continued; otherwise a new experiment is started
-EXPERIMENT_DIRECTORY = os.path.join("experiments", "simple")
+EXPERIMENT_DIRECTORY = os.path.join("experiments", "default")
 
 # Whether to echo messages written to the
 # experiment log to the console as well
@@ -63,6 +63,27 @@ MUTATION_RATE = 0.05
 FITNESS_SCORE_WEIGHT = 1.0
 FITNESS_ACCURACY_WEIGHT = 0.0
 FITNESS_RUN_TIME_WEIGHT = 5.0 / 60.0
+
+##################################################
+#             NEURAL NETWORK SETTINGS
+##################################################
+
+# Number of hidden layers in the network
+NUM_HIDDEN_LAYERS = 2
+
+# Number of neurons in each hidden layer
+HIDDEN_LAYER_SIZE = 10
+
+# Which activation function to use between hidden layers
+[LOG, RELU, SIGMOID, SOFTPLUS] = range(4)
+HIDDEN_LAYER_ACTIVATION_FN = SIGMOID
+
+# Threshold value for activation in the output layer
+OUTPUT_ACTIVATION_THRESHOLD = 0.5
+
+# Crossover mechanism to use
+[RANDOM, SPLIT] = range(2)
+CROSSOVER_MECHANISM = SPLIT
 
 ##################################################
 #               CORE GAME SETTINGS
@@ -127,11 +148,11 @@ import click
         default=None, help="Whether to play the game, or run an experiment.")
 @click.option("--player-mode", type=click.Choice(["human", "ai"]),
         default=None, help="Who (or what) is playing the game.")
-@click.option("--game-algorithm-id", type=click.Choice(["simple"]),
+@click.option("--game-algorithm-id", type=click.Choice(["simple", "nn"]),
         default=None, help="Algorithm to use when AI is playing the game.")
 @click.option("--game-ai-brain", type=click.Path(exists=True),
         default=None, help="Path to AI brain to use when playing the game.")
-@click.option("--experiment-algorithm-id", type=click.Choice(["simple"]),
+@click.option("--experiment-algorithm-id", type=click.Choice(["simple", "nn"]),
         default=None, help="Algorithm to use for the next started experiment.")
 @click.option("--experiment-directory", type=click.Path(exists=False),
         default=None, help="Path to the directory used by the experiment.")
@@ -150,7 +171,18 @@ import click
 @click.option("--fitness-score-weight", type=float,
         default=None, help="Weight of score in the fitness function.")
 @click.option("--fitness-runtime-weight", type=float,
-        default=None, help="Weight of runtime int he fitness function.")
+        default=None, help="Weight of runtime in the fitness function.")
+@click.option("--num-hidden-layers", type=int,
+        default=None, help="Number of hidden layers in the neural network.")
+@click.option("--hidden-layer-size", type=int,
+        default=None, help="Number of neurons in each hidden layer.")
+@click.option("--hidden-layer-activation-fn", type=click.Choice(["log", "relu",
+        "sigmoid", "softplus"]), default=None,
+        help="Which activation function to use between hidden layers.")
+@click.option("--output-activation-threshold", type=float,
+        default=None, help="Activation threshold value for output layer.")
+@click.option("--crossover-mechanism", type=click.Choice(["random", "split"]),
+        default=None, help="Crossover mechanism to use.")
 @click.option("--use-predetermined-seed", type=click.Choice(["true", "false"]),
         default=None, help="Whether to use a predetermined RNG seed.")
 @click.option("--predetermined-seed", type=int,
@@ -160,11 +192,14 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         game_ai_brain, experiment_algorithm_id, experiment_directory,
         experiment_echo_logs, max_generations, progress_improvement_threshold,
         max_generations_without_progress, generation_population, mutation_rate,
-        fitness_score_weight, fitness_runtime_weight, use_predetermined_seed,
+        fitness_score_weight, fitness_runtime_weight, num_hidden_layers,
+        hidden_layer_size, hidden_layer_activation_fn,
+        output_activation_threshold, crossover_mechanism, use_predetermined_seed,
         predetermined_seed):
     """
     Configures settings according to the command line arguments.
-
+    """
+    """
     NOTE: To support a new setting, add it to the click options above,
         the method arguments, the list of global variables, and the
         code block in the method body.
@@ -177,17 +212,20 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
             MAX_GENERATIONS, PROGRESS_IMPROVEMENT_THRESHOLD, \
             MAX_GENERATIONS_WITHOUT_PROGRESS, GENERATION_POPULATION, \
             MUTATION_RATE, FITNESS_SCORE_WEIGHT, FITNESS_RUNTIME_WEIGHT, \
+            NUM_HIDDEN_LAYERS, HIDDEN_LAYER_SIZE, HIDDEN_LAYER_ACTIVATION_FN, \
+            OUTPUT_ACTIVATION_THRESHOLD, CROSSOVER_MECHANISM, \
             USE_PREDETERMINED_SEED, PREDETERMINED_SEED
     if run_mode is not None:
         RUN_MODE = {"game": GAME, "experiment": EXPERIMENT}[run_mode]
     if player_mode is not None:
         PLAYER_MODE = {"human": HUMAN, "ai": AI}[player_mode]
     if game_algorithm_id is not None:
-        GAME_ALGORITHM_ID = {"simple": SIMPLE}[game_algorithm_id]
+        GAME_ALGORITHM_ID = {"simple": SIMPLE, "nn": NN}[game_algorithm_id]
     if game_ai_brain is not None:
         GAME_AI_BRAIN = game_ai_brain
     if experiment_algorithm_id is not None:
-        EXPERIMENT_ALGORITHM_ID = {"simple": SIMPLE}[experiment_algorithm_id]
+        EXPERIMENT_ALGORITHM_ID = {"simple": SIMPLE, "nn": NN}\
+                [experiment_algorithm_id]
     if experiment_directory is not None:
         EXPERIMENT_DIRECTORY = experiment_directory
     if experiment_echo_logs is not None:
@@ -206,6 +244,18 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         FITNESS_SCORE_WEIGHT = fitness_score_weight
     if fitness_runtime_weight is not None:
         FITNESS_RUNTIME_WEIGHT = fitness_runtime_weight
+    if num_hidden_layers is not None:
+        NUM_HIDDEN_LAYERS = num_hidden_layers
+    if hidden_layer_size is not None:
+        HIDDEN_LAYER_SIZE = hidden_layer_size
+    if hidden_layer_activation_fn is not None:
+        HIDDEN_LAYER_ACTIVATION_FN = {"log": LOG, "relu": RELU, "sigmoid": SIGMOID,
+                "softplus": SOFTPLUS}[hidden_layer_activation_fn]
+    if output_activation_threshold is not None:
+        OUTPUT_ACTIVATION_THRESHOLD = output_activation_threshold
+    if crossover_mechanism is not None:
+        CROSSOVER_MECHANISM = {"random": RANDOM, "split": SPLIT}\
+                [crossover_mechanism]
     if use_predetermined_seed is not None:
         USE_PREDETERMINED_SEED = {"true": True, "false": False}\
                 [use_predetermined_seed]
