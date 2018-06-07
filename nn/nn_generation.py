@@ -28,7 +28,7 @@ class NN_Generation(Generation):
         num_brains = len(self._brains)
 
         # Sort the brains by their fitness
-        sorted_brains = sorted(self._brains, key=lambda x: x.fitness)
+        sorted_brains = sorted(self._brains, key=lambda x: x.fitness, reverse=True)
 
         # Choose the best brains of this generation to survive into the next
         num_survivors = int(num_brains * settings.GENERATION_SURVIVOR_RATE)
@@ -53,8 +53,9 @@ class NN_Generation(Generation):
                     replace=False, p=all_probs)
             new_brains.append(parents[0].crossover(parents[1]))
 
-        # Mutate all members of the new generation
-        map(lambda x: x.mutate(settings.MUTATION_RATE), new_brains)
+        # Mutate all members of the new generation,
+        # except the previous generation's champion
+        map(lambda x: x.mutate(settings.MUTATION_RATE), new_brains[1:])
 
         return NN_Generation(self._generation_number+1, self._app,
                 brains=new_brains)

@@ -168,6 +168,8 @@ def run_experiment():
         progress_threshold = best_fitness + settings.PROGRESS_IMPROVEMENT_THRESHOLD
         if best_brain.fitness < progress_threshold:
             stagnation_idx += 1
+        else:
+            stagnation_idx = 0
 
         # Update the best brain and fitness, if necessary
         if best_brain.fitness >= best_fitness:

@@ -38,18 +38,18 @@ EXPERIMENT_ECHO_LOGS = True
 
 # Maximum number of generations to run the
 # experiment for, if it doesn't get ended early
-MAX_GENERATIONS = 100
+MAX_GENERATIONS = 200
 
 # Minimum improvement in fitness needed between
 # generations for us to consider it "progress"
-PROGRESS_IMPROVEMENT_THRESHOLD = 50
+PROGRESS_IMPROVEMENT_THRESHOLD = 1
 
 # Maximum number of generations to wait without
 # progress before ending the experiment early
-MAX_GENERATIONS_WITHOUT_PROGRESS = 5
+MAX_GENERATIONS_WITHOUT_PROGRESS = 20
 
 # Number of brains in each generation
-GENERATION_POPULATION = 100
+GENERATION_POPULATION = 200
 
 # Percentage of the current generation to
 # keep when breeding the next generation
@@ -72,14 +72,14 @@ FITNESS_MISSED_SHOT_PENALTY = 0.5
 NUM_HIDDEN_LAYERS = 2
 
 # Number of neurons in each hidden layer
-HIDDEN_LAYER_SIZE = 10
+HIDDEN_LAYER_SIZE = 20
 
 # Which activation function to use between hidden layers
 [LOG, RELU, SIGMOID, SOFTPLUS] = range(4)
 HIDDEN_LAYER_ACTIVATION_FN = SIGMOID
 
 # Threshold value for activation in the output layer
-OUTPUT_ACTIVATION_THRESHOLD = 0.5
+OUTPUT_ACTIVATION_THRESHOLD = 0.8
 
 # Crossover mechanism to use
 [RANDOM, SPLIT] = range(2)
