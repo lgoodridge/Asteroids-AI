@@ -99,7 +99,7 @@ def run_experiment():
     # not a directory, fail and alert the user
     else:
         raise ValueError(("Experiment Directory '%s' exists, but "
-                "is not a directory.") % experiment_directory)
+                "is not a directory.") % experiment_dir)
 
     generation = None
     start_idx = generation_idx

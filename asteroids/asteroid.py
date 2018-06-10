@@ -130,10 +130,10 @@ class Asteroid(Component):
         if self._size > 1:
             asteroids.append(Asteroid(self._size-1, self.x, self.y, random.uniform(
                     self.speed, Asteroid.SIZE_TO_MAX_SPEED[self._size-1]),
-                    (self.angle - random.uniform(0, math.pi/6)) % 2*math.pi))
+                    (self.angle - random.uniform(0, math.pi/4)) % (2*math.pi)))
             asteroids.append(Asteroid(self._size-1, self.x, self.y, random.uniform(
                     self.speed, Asteroid.SIZE_TO_MAX_SPEED[self._size-1]),
-                    (self.angle + random.uniform(0, math.pi/6)) % 2*math.pi))
+                    (self.angle + random.uniform(0, math.pi/4)) % (2*math.pi)))
         play_sound(Asteroid.SIZE_TO_BANG_SOUND[self._size])
 
     def get_score(self):

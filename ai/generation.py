@@ -26,7 +26,9 @@ class Generation(object):
         """
         best_fitness = -1
         for id, brain in enumerate(self._brains):
-            brain.fitness = self._app.run_simulation(brain)
+            fitnesses = [self._app.run_simulation(brain) \
+                    for i in range(settings.NUM_EVALUATION_SIMULATIONS)]
+            brain.fitness = sum(fitnesses) / float(len(fitnesses))
             if brain.fitness > best_fitness:
                 self._best_brain_id = id
                 best_fitness = brain.fitness

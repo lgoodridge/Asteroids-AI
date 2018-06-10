@@ -59,10 +59,26 @@ GENERATION_SURVIVOR_RATE = 0.25
 # breeding to create the next generation
 MUTATION_RATE = 0.05
 
+# Number of simulations to run when determining fitness
+NUM_EVALUATION_SIMULATIONS = 1
+
 # Weights of each variable in the fitness function
 FITNESS_SCORE_WEIGHT = 1.0
 FITNESS_RUN_TIME_WEIGHT = 5.0 / 60.0
 FITNESS_MISSED_SHOT_PENALTY = 0.5
+
+# A "champion" is a member of a generation that is preserved
+# unmutated into the next generation:
+# Static - a predetermined number of champions are chosen
+# Performance - choose members whose fitness >> the mean
+[STATIC, PERFORMANCE] = range(2)
+CHAMPION_SELECTION_SCHEME = PERFORMANCE
+
+# Static number of champions to select each round
+NUM_CHAMPIONS = 1
+
+# Performance fitness threshold is the mean multiplied by this value
+CHAMPION_THRESHOLD_MULTIPLIER = 2.0
 
 ##################################################
 #             NEURAL NETWORK SETTINGS
@@ -168,12 +184,21 @@ import click
         default=None, help="Number of brains in each generation.")
 @click.option("--mutation-rate", type=float,
         default=None, help="Mutation rate when breeding generations.")
+@click.option("--num-evaluation-simulations", type=int,
+        default=None, help="Number of simulations to run during evaluation.")
 @click.option("--fitness-score-weight", type=float,
         default=None, help="Weight of score in the fitness function.")
 @click.option("--fitness-runtime-weight", type=float,
         default=None, help="Weight of runtime in the fitness function.")
 @click.option("--fitness-missed-shot-penalty", type=float,
         default=None, help="Fitness penalty for each missed shot.")
+@click.option("--champion-selection-scheme", type=click.Choice(["static",
+        "performance"]), default=None,
+        help="How to champions are selected each generation.")
+@click.option("--num-champions", type=int,
+        default=None, help="Number of champions to select each round.")
+@click.option("--champion-threshold-multiplier", type=float,
+        default=None, help="Factor above the mean fitness required for champions.")
 @click.option("--num-hidden-layers", type=int,
         default=None, help="Number of hidden layers in the neural network.")
 @click.option("--hidden-layer-size", type=int,
@@ -194,10 +219,11 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         game_ai_brain, experiment_algorithm_id, experiment_directory,
         experiment_echo_logs, max_generations, progress_improvement_threshold,
         max_generations_without_progress, generation_population, mutation_rate,
-        fitness_score_weight, fitness_runtime_weight, fitness_missed_shot_penalty,
-        num_hidden_layers, hidden_layer_size, hidden_layer_activation_fn,
-        output_activation_threshold, crossover_mechanism, use_predetermined_seed,
-        predetermined_seed):
+        num_evaluation_simulations, fitness_score_weight, fitness_runtime_weight,
+        fitness_missed_shot_penalty, champion_selection_scheme, num_champions,
+        champion_threshold_multiplier, num_hidden_layers, hidden_layer_size,
+        hidden_layer_activation_fn, output_activation_threshold,
+        crossover_mechanism, use_predetermined_seed, predetermined_seed):
     """
     Configures settings according to the command line arguments.
     """
@@ -213,8 +239,10 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
             EXPERIMENT_ALGORITHM_ID, EXPERIMENT_DIRECTORY, EXPERIMENT_ECHO_LOGS, \
             MAX_GENERATIONS, PROGRESS_IMPROVEMENT_THRESHOLD, \
             MAX_GENERATIONS_WITHOUT_PROGRESS, GENERATION_POPULATION, \
-            MUTATION_RATE, FITNESS_SCORE_WEIGHT, FITNESS_RUNTIME_WEIGHT, \
-            FITNESS_MISSED_SHOT_PENALTY, NUM_HIDDEN_LAYERS, HIDDEN_LAYER_SIZE, \
+            MUTATION_RATE, NUM_EVALUATION_SIMULATIONS, FITNESS_SCORE_WEIGHT, \
+            FITNESS_RUNTIME_WEIGHT, FITNESS_MISSED_SHOT_PENALTY, \
+            CHAMPION_SELECTION_SCHEME, NUM_CHAMPIONS, \
+            CHAMPION_THRESHOLD_MULTIPLIER, NUM_HIDDEN_LAYERS, HIDDEN_LAYER_SIZE, \
             HIDDEN_LAYER_ACTIVATION_FN, OUTPUT_ACTIVATION_THRESHOLD, \
             CROSSOVER_MECHANISM, USE_PREDETERMINED_SEED, PREDETERMINED_SEED
     if run_mode is not None:
@@ -242,12 +270,21 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         GENERATION_POPULATION = generation_population
     if mutation_rate is not None:
         MUTATION_RATE = mutation_rate
+    if num_evaluation_simulations is not None:
+        NUM_EVALUATION_SIMULATIONS = num_evaluation_simulations
     if fitness_score_weight is not None:
         FITNESS_SCORE_WEIGHT = fitness_score_weight
     if fitness_runtime_weight is not None:
         FITNESS_RUNTIME_WEIGHT = fitness_runtime_weight
     if fitness_missed_shot_penalty is not None:
         FITNESS_MISSED_SHOT_PENALTY = fitness_missed_shot_penalty
+    if champion_selection_scheme is not None:
+        CHAMPION_SELECTION_SCHEME = {"static": STATIC,
+                "performance": PERFORMANCE}[champion_selection_scheme]
+    if num_champions is not None:
+        NUM_CHAMPIONS = num_champions
+    if champion_threshold_multiplier is not None:
+        CHAMPION_THRESHOLD_MULTIPLIER = champion_threshold_multiplier
     if num_hidden_layers is not None:
         NUM_HIDDEN_LAYERS = num_hidden_layers
     if hidden_layer_size is not None:
