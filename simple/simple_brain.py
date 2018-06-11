@@ -1,7 +1,7 @@
 from ai.ai_brain import AI_Brain
-from ai.sensor import sense_eight_dir
-from asteroids.utils import LINEAR, HYPERBOLIC
+from ai.sensor import sense_n_dir
 import os
+import settings
 
 class Simple_Brain(AI_Brain):
     """
@@ -16,7 +16,7 @@ class Simple_Brain(AI_Brain):
         Checks the state of the world, and returns a feature
         matrix to be used as input to the AI update function.
         """
-        return sense_eight_dir(player, asteroids, 300, shape=LINEAR)
+        return sense_n_dir(0, player, asteroids, 0)
 
     def think(self, player, bullets, sensor_data):
         """

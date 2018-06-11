@@ -80,6 +80,20 @@ NUM_CHAMPIONS = 1
 # Performance fitness threshold is the mean multiplied by this value
 CHAMPION_THRESHOLD_MULTIPLIER = 2.0
 
+# Which sensor to use
+[NDIR] = range(1)
+SENSOR_ID = NDIR
+
+# Output shape of the sensor function
+[LINEAR, HYPERBOLIC] = range(2)
+SENSOR_OUTPUT_SHAPE = LINEAR
+
+# Maximum object sensing distance
+MAX_SENSOR_DISTANCE = 400
+
+# Number of angle regions to divide the sensor space into
+NUM_SENSOR_REGIONS = 8
+
 ##################################################
 #             NEURAL NETWORK SETTINGS
 ##################################################
@@ -199,6 +213,14 @@ import click
         default=None, help="Number of champions to select each round.")
 @click.option("--champion-threshold-multiplier", type=float,
         default=None, help="Factor above the mean fitness required for champions.")
+@click.option("--sensor-id", type=click.Choice(["ndir"]),
+        default=None, help="Which sensor to use.")
+@click.option("--sensor-output-shape", type=click.Choice(["linear", "hyperbolic"]),
+        default=None, help="Output shape of the sensor function.")
+@click.option("--max-sensor-distance", type=int,
+        default=None, help="Maximum object sensing distance.")
+@click.option("--num-sensor-regions", type=int,
+        default=None, help="Number of sensor angle regions to use.")
 @click.option("--num-hidden-layers", type=int,
         default=None, help="Number of hidden layers in the neural network.")
 @click.option("--hidden-layer-size", type=int,
@@ -221,8 +243,9 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         max_generations_without_progress, generation_population, mutation_rate,
         num_evaluation_simulations, fitness_score_weight, fitness_runtime_weight,
         fitness_missed_shot_penalty, champion_selection_scheme, num_champions,
-        champion_threshold_multiplier, num_hidden_layers, hidden_layer_size,
-        hidden_layer_activation_fn, output_activation_threshold,
+        champion_threshold_multiplier, sensor_id, sensor_output_shape,
+        max_sensor_distance, num_sensor_regions, num_hidden_layers,
+        hidden_layer_size, hidden_layer_activation_fn, output_activation_threshold,
         crossover_mechanism, use_predetermined_seed, predetermined_seed):
     """
     Configures settings according to the command line arguments.
@@ -242,9 +265,11 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
             MUTATION_RATE, NUM_EVALUATION_SIMULATIONS, FITNESS_SCORE_WEIGHT, \
             FITNESS_RUNTIME_WEIGHT, FITNESS_MISSED_SHOT_PENALTY, \
             CHAMPION_SELECTION_SCHEME, NUM_CHAMPIONS, \
-            CHAMPION_THRESHOLD_MULTIPLIER, NUM_HIDDEN_LAYERS, HIDDEN_LAYER_SIZE, \
-            HIDDEN_LAYER_ACTIVATION_FN, OUTPUT_ACTIVATION_THRESHOLD, \
-            CROSSOVER_MECHANISM, USE_PREDETERMINED_SEED, PREDETERMINED_SEED
+            CHAMPION_THRESHOLD_MULTIPLIER, SENSOR_ID, SENSOR_OUTPUT_SHAPE, \
+            MAX_SENSOR_DISTANCE, NUM_SENSOR_REGIONS, NUM_HIDDEN_LAYERS, \
+            HIDDEN_LAYER_SIZE, HIDDEN_LAYER_ACTIVATION_FN, \
+            OUTPUT_ACTIVATION_THRESHOLD, CROSSOVER_MECHANISM, \
+            USE_PREDETERMINED_SEED, PREDETERMINED_SEED
     if run_mode is not None:
         RUN_MODE = {"game": GAME, "experiment": EXPERIMENT}[run_mode]
     if player_mode is not None:
@@ -285,6 +310,15 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         NUM_CHAMPIONS = num_champions
     if champion_threshold_multiplier is not None:
         CHAMPION_THRESHOLD_MULTIPLIER = champion_threshold_multiplier
+    if sensor_id is not None:
+        SENSOR_ID = {"ndir": NDIR}[sensor_id]
+    if sensor_output_shape is not None:
+        SENSOR_OUTPUT_SHAPE = {"linear": LINEAR, "hyperbolic": HYPERBOLIC}\
+                [sensor_output_shape]
+    if max_sensor_distance is not None:
+        MAX_SENSOR_DISTANCE = max_sensor_distance
+    if num_sensor_regions is not None:
+        NUM_SENSOR_REGIONS = num_sensor_regions
     if num_hidden_layers is not None:
         NUM_HIDDEN_LAYERS = num_hidden_layers
     if hidden_layer_size is not None:

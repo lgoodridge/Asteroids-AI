@@ -13,9 +13,6 @@ GREEN = (20, 200, 20)
 RED = (200, 20, 20)
 WHITE = (220, 220, 220)
 
-# Possible loss function shapes
-[LINEAR, HYPERBOLIC] = range(2)
-
 def angle_to(comp1, comp2, handle_looping=True):
     """
     Returns the angle comp1 would have to face to move toward comp2.

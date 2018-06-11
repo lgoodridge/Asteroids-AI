@@ -1,10 +1,10 @@
 from ai.ai_brain import AI_Brain
 from ai.ai_player import AI_Player
-from ai.sensor import sense_eight_dir
-from asteroids.utils import LINEAR, HYPERBOLIC
+from ai.sensor import sense_n_dir
 from nn.neural_network import Neural_Network
 import json
 import os
+import settings
 
 class NN_Brain(AI_Brain):
     """
@@ -16,15 +16,16 @@ class NN_Brain(AI_Brain):
         if network:
             self.network = network
         else:
-            self.network = Neural_Network.init_random(8,
-                    AI_Player.DECISION_VECTOR_SIZE)
+            self.network = Neural_Network.init_random(
+                    settings.NUM_SENSOR_REGIONS, AI_Player.DECISION_VECTOR_SIZE)
 
     def sense(self, player, asteroids, bullets):
         """
         Checks the state of the world, and returns a feature
         matrix to be used as input to the AI update function.
         """
-        return sense_eight_dir(player, asteroids, 300, shape=LINEAR)
+        return sense_n_dir(settings.NUM_SENSOR_REGIONS, player, asteroids,
+                settings.MAX_SENSOR_DISTANCE, shape=settings.SENSOR_OUTPUT_SHAPE)
 
     def think(self, player, bullets, sensor_data):
         """
