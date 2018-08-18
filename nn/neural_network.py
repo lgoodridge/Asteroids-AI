@@ -131,7 +131,7 @@ class Neural_Network(object):
         new_matrix = np.zeros(matrixA.shape)
         for row in range(new_matrix.shape[0]):
             for col in range(new_matrix.shape[1]):
-                parent = np.random.choice([matrixA, matrixB])
+                parent = [matrixA, matrixB][np.random.randint(2)]
                 new_matrix[row][col] = parent[row][col]
         return new_matrix
 
