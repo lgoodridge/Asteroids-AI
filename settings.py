@@ -149,6 +149,19 @@ USE_PREDETERMINED_SEED = False
 PREDETERMINED_SEED = 0
 
 ##################################################
+#              SPECIAL CONDITIONS
+##################################################
+
+# Forces player ship to keep moving
+ALWAYS_BOOSTING = False
+
+# Prevents player ship from moving
+DISABLE_BOOSTING = False
+
+# Prevents player ship from shooting
+DISABLE_SHOOTING = False
+
+##################################################
 #               IN-GAME SETTINGS
 ##################################################
 
@@ -236,6 +249,12 @@ import click
         default=None, help="Whether to use a predetermined RNG seed.")
 @click.option("--predetermined-seed", type=int,
         default=None, help="Predetermined seed to use if specified.")
+@click.option("--always-boosting", type=click.Choice(["true", "false"]),
+        default=None, help="Forces player ship to keep moving.")
+@click.option("--disable-boosting", type=click.Choice(["true", "false"]),
+        default=None, help="Prevents player ship from moving.")
+@click.option("--disable-shooting", type=click.Choice(["true", "false"]),
+        default=None, help="Prevents player ship from shooting.")
 
 def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         game_ai_brain, experiment_algorithm_id, experiment_directory,
@@ -246,7 +265,8 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         champion_threshold_multiplier, sensor_id, sensor_output_shape,
         max_sensor_distance, num_sensor_regions, num_hidden_layers,
         hidden_layer_size, hidden_layer_activation_fn, output_activation_threshold,
-        crossover_mechanism, use_predetermined_seed, predetermined_seed):
+        crossover_mechanism, use_predetermined_seed, predetermined_seed,
+        always_boosting, disable_boosting, disable_shooting):
     """
     Configures settings according to the command line arguments.
     """
@@ -269,7 +289,8 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
             MAX_SENSOR_DISTANCE, NUM_SENSOR_REGIONS, NUM_HIDDEN_LAYERS, \
             HIDDEN_LAYER_SIZE, HIDDEN_LAYER_ACTIVATION_FN, \
             OUTPUT_ACTIVATION_THRESHOLD, CROSSOVER_MECHANISM, \
-            USE_PREDETERMINED_SEED, PREDETERMINED_SEED
+            USE_PREDETERMINED_SEED, PREDETERMINED_SEED, ALWAYS_BOOSTING, \
+            DISABLE_BOOSTING, DISABLE_SHOOTING
     if run_mode is not None:
         RUN_MODE = {"game": GAME, "experiment": EXPERIMENT}[run_mode]
     if player_mode is not None:
@@ -336,3 +357,9 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
                 [use_predetermined_seed]
     if predetermined_seed is not None:
         PREDETERMINED_SEED = predetermined_seed
+    if always_boosting is not None:
+        ALWAYS_BOOSTING = {"true": True, "false": False}[always_boosting]
+    if disable_boosting is not None:
+        DISABLE_BOOSTING = {"true": True, "false": False}[disable_boosting]
+    if disable_shooting is not None:
+        DISABLE_SHOOTING = {"true": True, "false": False}[disable_shooting]

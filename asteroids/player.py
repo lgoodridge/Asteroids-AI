@@ -78,15 +78,17 @@ class Player(Component):
         """
         Engages the ships boosters.
         """
-        self._boosting = True
-        play_sound("thrust", -1)
+        if not self._boosting and not settings.DISABLE_BOOSTING:
+            self._boosting = True
+            play_sound("thrust", -1)
 
     def stop_boosting(self):
         """
         Disengages the ship's boosters.
         """
-        self._boosting = False
-        stop_sound("thrust", 400)
+        if self._boosting and not settings.ALWAYS_BOOSTING:
+            self._boosting = False
+            stop_sound("thrust", 400)
 
     def start_spinning(self, clockwise):
         """
@@ -107,7 +109,8 @@ class Player(Component):
         Shoots a bullet in the current direction if possible.
         """
         if len(bullets) < Player.MAX_ONSCREEN_BULLETS and \
-                self._remaining_reload_time == 0:
+                self._remaining_reload_time == 0 and \
+                not settings.DISABLE_SHOOTING:
             bullets.append(Bullet(self.x, self.y, self.rotation))
             self.num_bullets_fired += 1
             self._remaining_reload_time = Player.RELOAD_TIME
@@ -147,3 +150,5 @@ class Player(Component):
         """
         if self._remaining_reload_time != 0:
             self._remaining_reload_time -= 1
+        if settings.ALWAYS_BOOSTING and not self._boosting:
+            self.start_boosting()
