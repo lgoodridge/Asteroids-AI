@@ -156,8 +156,8 @@ class App(object):
                 random.setstate(self._prev_rng_state)
 
         # Remove destroyed components
-        self.bullets = filter(lambda x: not x.destroyed, self.bullets)
-        self.asteroids = filter(lambda x: not x.destroyed, self.asteroids)
+        self.bullets = [x for x in self.bullets if not x.destroyed]
+        self.asteroids = [x for x in self.asteroids if not x.destroyed]
 
         # Get the approximate number of milliseconds since last asteroid spawn
         # Since the game operates on frames (the number of update iterations),

@@ -37,7 +37,7 @@ class NN_Generation(Generation):
 
         # Breed half the remaining population from just the chosen survivors
         num_survivor_children = (num_brains - num_survivors) / 2
-        survivor_fitnesses = np.array(map(lambda x: x.fitness, survivors))
+        survivor_fitnesses = np.array([x.fitness for x in survivors])
         survivor_probs = survivor_fitnesses / float(survivor_fitnesses.sum())
         for i in range(num_survivor_children):
             parents = np.random.choice(survivors, 2,
@@ -46,7 +46,7 @@ class NN_Generation(Generation):
 
         # Breed the remaining population from the entire previous generation
         num_remaining_children = num_brains - num_survivors - num_survivor_children
-        all_fitnesses = np.array(map(lambda x: x.fitness, sorted_brains))
+        all_fitnesses = np.array([x.fitness for x in sorted_brains])
         all_probs = all_fitnesses / float(all_fitnesses.sum())
         for i in range(num_remaining_children):
             parents = np.random.choice(sorted_brains, 2,

@@ -63,6 +63,6 @@ def stop_all_sounds():
     if not _is_initialized:
         raise RuntimeError("Programer Error: sound module used " +
                 "before load_sounds() call.")
-    for _, sound in _sound_library.iteritems():
+    for _, sound in _sound_library.items():
         sound.stop()
 

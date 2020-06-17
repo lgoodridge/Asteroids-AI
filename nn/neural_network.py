@@ -53,7 +53,7 @@ class Neural_Network(object):
         for i in range(settings.NUM_HIDDEN_LAYERS):
             inputs_with_bias = np.append(curr_inputs, 1)
             curr_outputs = np.dot(inputs_with_bias, self._weight_matrices[i])
-            curr_inputs = np.array(map(activation_fn, curr_outputs))
+            curr_inputs = np.array([activation_fn(x) for x in curr_outputs])
 
         # Compute the final output of the network, by dot multiplying the
         # last hidden layer's outputs with the output layer weights, and
@@ -62,7 +62,7 @@ class Neural_Network(object):
         raw_outputs = np.dot(inputs_with_bias, self._weight_matrices[-1])
         threshold_fn = lambda x: threshold_activation(x,
                 settings.OUTPUT_ACTIVATION_THRESHOLD)
-        return map(threshold_fn, raw_outputs)
+        return [threshold_fn(x) for x in raw_outputs]
 
     def crossover(self, other_nn):
         """
@@ -106,7 +106,7 @@ class Neural_Network(object):
         """
         Serializes the weight matrices into a 3D list.
         """
-        return map(lambda x: x.tolist(), self._weight_matrices)
+        return [x.tolist() for x in self._weight_matrices]
 
     @classmethod
     def deserialize(cls, serialized_nn):
@@ -114,7 +114,7 @@ class Neural_Network(object):
         Accepts a serialized neural network object and returns a new
         Neural Network containing the deserialized weight matrices.
         """
-        return cls(map(np.asarray, serialized_nn))
+        return cls([np.asarray(x) for x in serialized_nn])
 
     @staticmethod
     def _random_crossover(matrixA, matrixB):

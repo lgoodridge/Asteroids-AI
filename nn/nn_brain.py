@@ -31,7 +31,7 @@ class NN_Brain(AI_Brain):
         Runs the AI algorithm on sensor_data and
         outputs a decision vector in response.
         """
-        return map(bool, self.network.get_output(sensor_data))
+        return [bool(x) for x in self.network.get_output(sensor_data)]
 
     def crossover(self, other_brain):
         """
