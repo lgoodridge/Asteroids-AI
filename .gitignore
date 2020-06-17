@@ -38,8 +38,12 @@ var/
 *.egg-info/
 *.egg
 
+# Pyenv
+.python-version
+
 # Other Files
 notes/
 tmp/
+research.txt
 todo.txt
 .DS_Store
