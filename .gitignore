@@ -17,8 +17,9 @@ data/*
 experiments/*
 !experiments/readme
 
-# Scripts Folder
-scripts/*
+# Old Folders
+examples/18_examples/
+scripts/18_scripts/
 
 # Temp Files
 .*.sw*
