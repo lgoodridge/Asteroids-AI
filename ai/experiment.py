@@ -6,7 +6,7 @@ from __future__ import print_function
 from ai.ai_app import AI_App
 from ai.generation import Generation
 from ai.utils import algorithm_id_to_generation_class, \
-        LOG_FILENAME, META_FILENAME
+        BEST_BRAIN_FILENAME, LOG_FILENAME, META_FILENAME
 from collections import OrderedDict
 from datetime import datetime
 import json
@@ -30,7 +30,7 @@ def run_experiment():
     experiment_name = os.path.basename(os.path.normpath(experiment_dir))
     log_filename = os.path.join(experiment_dir, LOG_FILENAME)
     meta_filename = os.path.join(experiment_dir, META_FILENAME)
-    best_brain_filename = os.path.join(experiment_dir, "_best.brn")
+    best_brain_filename = os.path.join(experiment_dir, BEST_BRAIN_FILENAME)
 
     # If the experiment directory doesn't exist
     # yet, create it, and start a new experiment
@@ -176,7 +176,8 @@ def run_experiment():
             best_fitness = best_brain.fitness
             best_brain_tag = "Generation: %03d - ID: %03d" % \
                     (generation_idx, best_brain_id)
-            best_brain_filename = os.path.join(experiment_dir, "_best.brn")
+            best_brain_filename = os.path.join(experiment_dir,
+                    BEST_BRAIN_FILENAME)
             if os.path.exists(best_brain_filename):
                 os.remove(best_brain_filename)
             try:
@@ -197,6 +198,139 @@ def run_experiment():
         _write_meta_file(meta_filename, meta_dict)
 
     # Clean up
+    ai_app.cleanup_simulation()
+    log.close()
+
+def merge_experiments(exp_dir_list, merged_dir):
+    """
+    Merges the best brains of the experiment directories in
+    the provided list into a new directory, and initializes
+    (but does not run) that experiment.
+
+    All arguments should be filepaths to existing parent
+    experiment directories, or to the desired child directory.
+
+    All parent experiments should be compatible (e.g.
+    using the same AI algorithm), and the child experiment
+    will determine its algorithm and generation population
+    from the configuration parameters set in settings.
+    """
+    ai_app = AI_App()
+    generation_class = algorithm_id_to_generation_class(
+            settings.EXPERIMENT_ALGORITHM_ID)
+    algorithm_name = generation_class.get_algorithm_name()
+
+    experiment_name = os.path.basename(os.path.normpath(merged_dir))
+    log_filename = os.path.join(merged_dir, LOG_FILENAME)
+    meta_filename = os.path.join(merged_dir, META_FILENAME)
+
+    def get_last_gen_dir(exp_dir):
+        """
+        Returns the filepath to the last generation
+        directory for the provided experiment.
+        """
+        if not os.path.exists(exp_dir):
+            raise ValueError(("Parent experiment directory '%s' "
+                    "does not exist.") % exp_dir)
+        gen_dirs = [x for x in os.listdir(exp_dir) if x.startswith("gen")]
+        if len(gen_dirs) == 0:
+            raise ValueError(("Parent experiment directory '%s' "
+                    "doesn't have any completed generations") % exp_dir)
+        return os.path.join(exp_dir, gen_dirs[-1])
+
+    # Ensure at least two parent experiments were provided,
+    # then get the last generation directories for each of them
+    if len(exp_dir_list) < 2:
+        raise ValueError("There must be at least two parent experiments.")
+    exp_last_gens = [get_last_gen_dir(x) for x in exp_dir_list]
+
+    # Ensure the output directory doesn't already exist, then create it
+    if os.path.exists(merged_dir):
+        raise ValueError(("Output experiment directory '%s' "
+                "already exists.") % merged_dir)
+    parent_dir = os.path.dirname(os.path.normpath(merged_dir))
+    if parent_dir != "" and not os.path.exists(parent_dir):
+        raise ValueError(("Parent directory of output location '%s' "
+            "does not exist.") % parent_dir)
+    os.mkdir(merged_dir)
+
+    brains = []
+    brains_per_exp = int(settings.GENERATION_POPULATION / len(exp_dir_list))
+    leftover_brains = settings.GENERATION_POPULATION % len(exp_dir_list)
+
+    # Each experiment will contribute the first population / n
+    # brains from its final generation, where n is the number of
+    # parent experiments. If the number cannot be divided evenly,
+    # aribtrarily assign the leftover brains from the last experiment
+    # in the parent list
+    for parent_idx, gen_dir in enumerate(exp_last_gens):
+        num_brains = brains_per_exp
+        if parent_idx == len(exp_last_gens) - 1:
+            num_brains += leftover_brains
+        gen_brain_files = [os.path.join(gen_dir, x) for x in os.listdir(gen_dir)
+                if x.endswith(".brn")]
+        if len(gen_brain_files) < num_brains:
+            raise ValueError(("Parent experiment directory '%s' does not "
+                    "have enough brains in its last generation to conribute")
+                    % gen_dir_path)
+        for brain_file in gen_brain_files[:num_brains]:
+            brains.append(generation_class.load_brain(brain_file))
+    generation = generation_class(0, ai_app, brains)
+
+    # Create the experiment log file
+    log = open(log_filename, "w")
+    current_time_str = datetime.now().strftime("%m/%d/%Y %H:%M")
+    print("========================================", file=log)
+    print("=     STARTED ON %s" % current_time_str, file=log)
+    print("=", file=log)
+    print("=     MERGED FROM:", file=log)
+    for exp_dir in exp_dir_list:
+        print("=     %s" % exp_dir, file=log)
+    print("========================================", file=log)
+    _write_to_log(log, "Initializing experiment '%s':\n"
+            % experiment_name, True)
+
+    # Evaluate the generation
+    _write_to_log(log, "Performing initial evaluation")
+    try:
+        generation.evaluate_fitnesses()
+        best_brain_id = generation.get_best_brain_id()
+        best_brain = generation.get_brain(best_brain_id)
+    except Exception as e:
+        _write_to_log(log, "\nERROR EVALUATING GENERATION %d\n%s" % \
+                (0, traceback.format_exc()), True)
+        return
+
+    # Save the generation
+    _write_to_log(log, ": Best Fitness = %.2f - Saving" % best_brain.fitness)
+    try:
+        generation.save(os.path.join(merged_dir, "gen000"))
+    except Exception as e:
+        _write_to_log(log, "\nERROR SAVING GENERATION %d\n%s" % \
+                (0, traceback.format_exc()), True)
+        return
+    _write_to_log(log, "\n")
+
+    # Save the best brain
+    best_brain_filename = os.path.join(merged_dir, BEST_BRAIN_FILENAME)
+    best_brain.save(best_brain_filename)
+
+    # Create the experiment meta file
+    meta_dict = OrderedDict({
+            "AI Algorithm": algorithm_name,
+            "Best Fitness": best_brain.fitness,
+            "Best Brain": "Generation: %03d - ID: %03d" % (0, best_brain_id),
+            "Generation Index": 1,
+            "Stagnation Index": 0,
+    })
+    try:
+        _write_meta_file(meta_filename, meta_dict)
+    except Exception as e:
+        print("ERROR CREATING META FILE!")
+        raise e
+
+    # Clean up
+    _write_to_log(log, "Finished initializing merged experiment.\n", True)
     ai_app.cleanup_simulation()
     log.close()
 

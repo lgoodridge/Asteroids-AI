@@ -185,8 +185,9 @@ PLAY_SFX = True
 ##################################################
 
 import click
+import sys
 
-@click.command()
+@click.command(context_settings=dict(allow_extra_args=True))
 @click.option("--run-mode", type=click.Choice(["game", "experiment"]),
         default=None, help="Whether to play the game, or run an experiment.")
 @click.option("--player-mode", type=click.Choice(["human", "ai"]),
@@ -363,3 +364,10 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         DISABLE_BOOSTING = {"true": True, "false": False}[disable_boosting]
     if disable_shooting is not None:
         DISABLE_SHOOTING = {"true": True, "false": False}[disable_shooting]
+
+def configure_settings():
+    try:
+        cli_configure_settings(standalone_mode=False)
+    except click.exceptions.ClickException as e:
+        e.show()
+        sys.exit(e.exit_code)

@@ -44,7 +44,7 @@ class NN_Generation(Generation):
         new_brains.extend(survivors)
 
         # Breed half the remaining population from just the chosen survivors
-        num_survivor_children = (num_brains - len(new_brains)) / 2
+        num_survivor_children = int((num_brains - len(new_brains)) / 2)
         survivor_fitnesses = np.array([x.fitness for x in survivors])
         survivor_probs = survivor_fitnesses / float(survivor_fitnesses.sum())
         for i in range(num_survivor_children):
@@ -79,7 +79,7 @@ class NN_Generation(Generation):
                 brains=new_brains)
 
     @staticmethod
-    def _load_brain(filename):
+    def load_brain(filename):
         """
         Calls the load function of the appropiate
         AI Brain subclass and returns the result.

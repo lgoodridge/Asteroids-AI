@@ -138,7 +138,7 @@ class Generation(object):
         brains = []
         for filename in os.listdir(dirname):
             if filename.endswith(".brn"):
-                brains.append(cls._load_brain(os.path.join(dirname, filename)))
+                brains.append(cls.load_brain(os.path.join(dirname, filename)))
 
         # Load the metafile
         with open(meta_filename, "r") as meta_file:
@@ -179,12 +179,12 @@ class Generation(object):
                 "Generation subclasses.")
 
     @staticmethod
-    def _load_brain(filename):
+    def load_brain(filename):
         """
         Calls the load function of the appropiate
         AI Brain subclass and returns the result.
         """
-        raise NotImplementedError("'_load_brain' should be " +
+        raise NotImplementedError("'load_brain' should be " +
                 "implemented by Generation subclasses.")
 
     @staticmethod

@@ -5,6 +5,7 @@ Defines utility functions for the AI modules.
 import settings
 
 # Base filenames for experiment / generation files
+BEST_BRAIN_FILENAME = "_best.brn"
 LOG_FILENAME = "_log.txt"
 META_FILENAME = "_meta.txt"
 SUMMARY_FILENAME = "_summary.txt"
