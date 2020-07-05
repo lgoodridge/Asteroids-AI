@@ -24,9 +24,15 @@ class Generation(object):
         Runs a simulation on each brain in the generation,
         and sets their fitness score to the simulation result.
         """
+        num_simulations = settings.NUM_EVALUATION_SIMULATIONS
+        if settings.USE_PREDETERMINED_SEEDS:
+            seeds = settings.PREDETERMINED_SEEDS
+        else:
+            seeds = [None] * settings.NUM_EVALUATION_SIMULATIONS
+
         best_fitness = -1
         for id, brain in enumerate(self._brains):
-            fitnesses = [self._app.run_simulation(brain) \
+            fitnesses = [self._app.run_simulation(brain, seed=seeds[i]) \
                     for i in range(settings.NUM_EVALUATION_SIMULATIONS)]
             brain.fitness = sum(fitnesses) / float(len(fitnesses))
             if brain.fitness > best_fitness:

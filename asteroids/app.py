@@ -23,9 +23,10 @@ class App(object):
         self._has_started = False
         self._running = False
 
-    def _setup(self, use_screen=True):
+    def _setup(self, seed=None, use_screen=True):
         """
         Perform initial setup for all game components.
+        If seed is provided, uses that value to seed the RNG.
         If use_screen is True, sets up the game screen for use as well.
         """
         if self._has_started:
@@ -42,6 +43,9 @@ class App(object):
                     (settings.WIDTH, settings.HEIGHT))
             self.screen.fill(BLACK)
             pygame.display.flip()
+
+        # Save the rng seed
+        self._seed = seed
 
         # Load the game font's (uses system's default font)
         self._big_font = pygame.font.SysFont(None, 100)
@@ -94,10 +98,10 @@ class App(object):
         """
         self._state = App.RUNNING
 
-        # Use predetermined RNG seed if specified
-        if settings.USE_PREDETERMINED_SEED:
+        # Use saved RNG seed if one was provided
+        if self._seed is not None:
             self._prev_rng_state = random.getstate()
-            random.seed(settings.PREDETERMINED_SEED)
+            random.seed(self._seed)
 
         # Load initial game components
         self.player = self._spawn_player()
@@ -152,7 +156,7 @@ class App(object):
                 self._running = False
 
             # Restore RNG state as well if necessary
-            if settings.USE_PREDETERMINED_SEED:
+            if self._seed:
                 random.setstate(self._prev_rng_state)
 
         # Remove destroyed components
@@ -337,11 +341,11 @@ class App(object):
         else:
             return
 
-    def start_game(self):
+    def start_game(self, seed=None):
         """
         Sets up the game and begins the main execution loop.
         """
-        self._setup()
+        self._setup(seed=seed)
 
         # Load the splash page, and wait for input to continue
         self._load_splash()

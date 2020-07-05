@@ -142,11 +142,11 @@ MIN_SPAWN_PERIOD = 1000
 # Game update speed limit (0 means no limit)
 MAX_FPS = 60
 
-# Whether to use a predetermined random seed for the RNG
-USE_PREDETERMINED_SEED = False
+# Whether to use predetermined random seed(s) for the RNG
+USE_PREDETERMINED_SEEDS = False
 
-# Predetermined seed to use if specified
-PREDETERMINED_SEED = 0
+# Iterable of predetermined seed(s) to use if specified
+PREDETERMINED_SEEDS = []
 
 ##################################################
 #              SPECIAL CONDITIONS
@@ -246,10 +246,10 @@ import sys
         default=None, help="Activation threshold value for output layer.")
 @click.option("--crossover-mechanism", type=click.Choice(["random", "split"]),
         default=None, help="Crossover mechanism to use.")
-@click.option("--use-predetermined-seed", type=click.Choice(["true", "false"]),
-        default=None, help="Whether to use a predetermined RNG seed.")
-@click.option("--predetermined-seed", type=int,
-        default=None, help="Predetermined seed to use if specified.")
+@click.option("--use-predetermined-seeds", type=click.Choice(["true", "false"]),
+        default=None, help="Whether to use predetermined RNG seeds.")
+@click.option("--predetermined-seeds", "-s", type=int, multiple=True,
+        default=None, help="Predetermined seeds to use if specified.")
 @click.option("--always-boosting", type=click.Choice(["true", "false"]),
         default=None, help="Forces player ship to keep moving.")
 @click.option("--disable-boosting", type=click.Choice(["true", "false"]),
@@ -266,7 +266,7 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
         champion_threshold_multiplier, sensor_id, sensor_output_shape,
         max_sensor_distance, num_sensor_regions, num_hidden_layers,
         hidden_layer_size, hidden_layer_activation_fn, output_activation_threshold,
-        crossover_mechanism, use_predetermined_seed, predetermined_seed,
+        crossover_mechanism, use_predetermined_seeds, predetermined_seeds,
         always_boosting, disable_boosting, disable_shooting):
     """
     Configures settings according to the command line arguments.
@@ -290,7 +290,7 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
             MAX_SENSOR_DISTANCE, NUM_SENSOR_REGIONS, NUM_HIDDEN_LAYERS, \
             HIDDEN_LAYER_SIZE, HIDDEN_LAYER_ACTIVATION_FN, \
             OUTPUT_ACTIVATION_THRESHOLD, CROSSOVER_MECHANISM, \
-            USE_PREDETERMINED_SEED, PREDETERMINED_SEED, ALWAYS_BOOSTING, \
+            USE_PREDETERMINED_SEEDS, PREDETERMINED_SEEDS, ALWAYS_BOOSTING, \
             DISABLE_BOOSTING, DISABLE_SHOOTING
     if run_mode is not None:
         RUN_MODE = {"game": GAME, "experiment": EXPERIMENT}[run_mode]
@@ -353,17 +353,35 @@ def cli_configure_settings(run_mode, player_mode, game_algorithm_id,
     if crossover_mechanism is not None:
         CROSSOVER_MECHANISM = {"random": RANDOM, "split": SPLIT}\
                 [crossover_mechanism]
-    if use_predetermined_seed is not None:
-        USE_PREDETERMINED_SEED = {"true": True, "false": False}\
-                [use_predetermined_seed]
-    if predetermined_seed is not None:
-        PREDETERMINED_SEED = predetermined_seed
+    if use_predetermined_seeds is not None:
+        USE_PREDETERMINED_SEEDS = {"true": True, "false": False}\
+                [use_predetermined_seeds]
+    if predetermined_seeds is not None:
+        PREDETERMINED_SEEDS = predetermined_seeds
     if always_boosting is not None:
         ALWAYS_BOOSTING = {"true": True, "false": False}[always_boosting]
     if disable_boosting is not None:
         DISABLE_BOOSTING = {"true": True, "false": False}[disable_boosting]
     if disable_shooting is not None:
         DISABLE_SHOOTING = {"true": True, "false": False}[disable_shooting]
+
+    # Set settings dependent on other settings
+    if USE_PREDETERMINED_SEEDS and len(PREDETERMINED_SEEDS) == 0:
+        PREDETERMINED_SEEDS = range(NUM_EVALUATION_SIMULATIONS)
+
+    # Check setting combinations for improper configurations
+    if int(GENERATION_POPULATION * GENERATION_SURVIVOR_RATE) < 2:
+        msg = ("With GENERATION_POPULATION = {} and GENERATION_SURVIVOR_RATE = "
+                "{}, less than 2 members will survive each generation").format(
+                        GENERATION_POPULATION, GENERATION_SURVIVOR_RATE)
+        raise ValueError(msg)
+    if RUN_MODE == EXPERIMENT and USE_PREDETERMINED_SEEDS \
+            and len(PREDETERMINED_SEEDS) < NUM_EVALUATION_SIMULATIONS:
+        msg = ("NUM_EVALUATION_SIMULATIONS is set to {}, but only {} seeds "
+                "were provided").format(NUM_EVALUATION_SIMULATIONS,
+                        len(PREDETERMINED_SEEDS))
+        raise ValueError(msg)
+
 
 def configure_settings():
     try:

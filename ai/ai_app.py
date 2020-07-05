@@ -77,14 +77,14 @@ class AI_App(App):
                 (num_missed_shots * settings.FITNESS_MISSED_SHOT_PENALTY))
         return max(raw_fitness, 0)
 
-    def start_game(self, ai_brain):
+    def start_game(self, ai_brain, seed=None):
         """
         Starts the game using the provided AI controller.
         """
         self._ai_brain = ai_brain
-        super(AI_App, self).start_game()
+        super(AI_App, self).start_game(seed=seed)
 
-    def run_simulation(self, ai_brain):
+    def run_simulation(self, ai_brain, seed=None):
         """
         Runs the game to completion in non-graphical mode using
         the provided AI controller, and returns the fitness score.
@@ -97,8 +97,9 @@ class AI_App(App):
 
         # Prepare the simulation
         if not self._has_started:
-            self._setup(use_screen=False)
+            self._setup(use_screen=False, seed=seed)
         else:
+            self._seed = seed
             self._running = True
         self._load_level()
 
