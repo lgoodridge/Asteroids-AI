@@ -16,6 +16,7 @@ data/*
 # Experiments Folder
 experiments/*/*
 !experiments/*/_run.sh
+!experiments/*/_demo.sh
 
 # Old Folders
 examples/18_examples/
