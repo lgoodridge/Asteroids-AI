@@ -8,9 +8,7 @@ Check out our [wiki!](https://github.com/lgoodridge/Asteroids-AI/wiki)
 
 This project runs on Python 3, and the dependencies can be installed via `pip`:
 
-    pip install -r requirements.txt --pre
-
-The Asteroids game is built with [Pygame](https://www.pygame.org/news), and some systems may only be compatible with certain versions of Pygame. In particular, newer versions of Mac OS currently [require the dev build of Pygame 2](https://github.com/pygame/pygame/issues/1594), so that is listed in the requirements to be safe. This is also why the `--pre` option is present on the install command.
+    pip install -r requirements.txt
 
 ## Example Commands
 
@@ -39,3 +37,21 @@ Some pre-made brains, and the commands to the run them are included in the `exam
 Some scripts for running multiple tests at once, or performing various other tasks are included in the `scripts` directory. These should also be run from the project's root directory. For example:
 
     ./scripts/test-merge.sh
+
+## Running Your Own Experiments
+
+To start a single experiment, use `--run-mode=experiment` as mentioned above, followed by any settings you wish to experiment with:
+
+    python start.py --run-mode=experiment [SETTINGS]
+
+You must at least provide `--experiment-algorithm-id`, the type of AI to train during the experiment, and `--experiment-directory`, the folder to output progress and results to.
+
+To see the available settings, run:
+
+    python manage.py settings
+
+If you want to run multiple experiments back-to-back (for example, to compare multiple values for a setting against each other), a template is provided to aid this. In the `experiments` folder, copy and rename the `template` folder:
+
+    cp -r template example-folder
+
+Then edit `_run.sh` as appropriate. There should (probably) be one `python start.py ...` command per experiment, each with a different `--experiment-directory`. Some default settings are provided in the template, but can be adjusted if necessary.
