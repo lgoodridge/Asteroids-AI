@@ -16,41 +16,55 @@ class App(object):
     # Game states
     SETUP, SPLASH, RUNNING, GAME_OVER = range(4)
 
-    def __init__(self):
+    def __init__(self, use_ui=True):
+        """
+        Initializes pygame and core state.
+        If use_ui is True, loads UI components as well.
+        """
         pygame.init()
         pygame.mixer.init()
-        load_sounds()
+
+        self._use_ui = use_ui
+        if self._use_ui:
+            load_sounds()
+
         self._has_started = False
         self._running = False
 
-    def _setup(self, seed=None, use_screen=True):
+    def _setup(self, seed=None):
         """
         Perform initial setup for all game components.
         If seed is provided, uses that value to seed the RNG.
-        If use_screen is True, sets up the game screen for use as well.
+        If use_ui is True, sets up the UI components for use as well.
         """
         if self._has_started:
             raise RuntimeError("Programmer Error: App._setup() called twice.")
         self._has_started = True
 
-        # Set up the game clock
-        self._clock = pygame.time.Clock()
+        # If the UI is enabled, set up relevant components
+        if self._use_ui:
 
-        # Set up the game screen, if necessary
-        self._use_screen = use_screen
-        if use_screen:
+            # Set up the game screen
             self.screen = pygame.display.set_mode(
                     (settings.WIDTH, settings.HEIGHT))
             self.screen.fill(BLACK)
             pygame.display.flip()
 
+            # Set up the game clock
+            self._clock = pygame.time.Clock()
+
+            # Load the game's fonts (uses system's default font)
+            self._big_font = pygame.font.SysFont(None, 100)
+            self._medium_font = pygame.font.SysFont(None, 50)
+            self._small_font = pygame.font.SysFont(None, 24)
+
+        # If the UI is disabled, ensure sounds are also disabled
+        elif settings.SOUNDS_ENABLED:
+            raise RuntimeError("settings.SOUNDS_ENABLED must be False if "
+                    "use_ui is False")
+
         # Save the rng seed
         self._seed = seed
-
-        # Load the game font's (uses system's default font)
-        self._big_font = pygame.font.SysFont(None, 100)
-        self._medium_font = pygame.font.SysFont(None, 50)
-        self._small_font = pygame.font.SysFont(None, 24)
 
         # Initialize game component variables
         self.player = None
@@ -120,14 +134,15 @@ class App(object):
         self._last_spawn_time = 0
         self._spawn_period = settings.INITIAL_SPAWN_PERIOD
 
-        # Reset sounds and start the BGM
-        stop_all_sounds()
-        play_sound("bgm", -1)
-
         # Reset the screen, if necessary
-        if self._use_screen:
+        if self._use_ui:
             self.screen.fill(BLACK)
             pygame.display.flip()
+
+            # Reset sounds and start the BGM
+            stop_all_sounds()
+            play_sound("bgm", -1)
+
 
     def _load_game_over(self):
         """
@@ -150,7 +165,7 @@ class App(object):
 
         # If the player is destroyed, transition to Game Over state or quit.
         if self._state == App.RUNNING and self.player.destroyed:
-            if self._use_screen:
+            if self._use_ui:
                 self._load_game_over()
             else:
                 self._running = False
@@ -303,7 +318,8 @@ class App(object):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 settings.PLAY_SFX = not settings.PLAY_SFX
                 if settings.PLAY_SFX:
-                    play_sound("bgm", -1)
+                    if self._state != App.GAME_OVER:
+                        play_sound("bgm", -1)
                 else:
                     stop_all_sounds()
             # X: Splits the first asteroid on the asteroid list

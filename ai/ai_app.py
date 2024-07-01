@@ -91,13 +91,9 @@ class AI_App(App):
         """
         self._ai_brain = ai_brain
 
-        # Turn off sounds for the duration of the simulation
-        previous_play_sfx = settings.PLAY_SFX
-        settings.PLAY_SFX = False
-
         # Prepare the simulation
         if not self._has_started:
-            self._setup(use_screen=False, seed=seed)
+            self._setup(seed=seed)
         else:
             self._seed = seed
             self._running = True
@@ -106,9 +102,6 @@ class AI_App(App):
         # Run it until the player dies
         while self._running:
             self._update()
-
-        # Clean up the app for potential reuse
-        settings.PLAY_SFX = previous_play_sfx
 
         # Return the fitness score
         return self._get_fitness()

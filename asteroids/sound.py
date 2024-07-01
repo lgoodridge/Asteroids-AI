@@ -40,17 +40,20 @@ def play_sound(sound_name, loops=0):
     Plays the sound with the provided name.
     The name should not include the file extension.
     """
+    if not settings.SOUNDS_ENABLED or not settings.PLAY_SFX:
+        return
     if not _is_initialized:
         raise RuntimeError("Programmer Error: sound module used " +
                 "before load_sounds() call.")
-    if settings.PLAY_SFX:
-        _sound_library[sound_name].play(loops)
+    _sound_library[sound_name].play(loops)
 
 def stop_sound(sound_name, fadeout_ms=0):
     """
     Fades out and stops the sound with the provided name.
     Only necessary when sound was previously looped.
     """
+    if not settings.SOUNDS_ENABLED:
+        return
     if not _is_initialized:
         raise RuntimeError("Programer Error: sound module used " +
                 "before load_sounds() call.")
@@ -60,6 +63,8 @@ def stop_all_sounds():
     """
     Immediately halts playback of all sounds.
     """
+    if not settings.SOUNDS_ENABLED:
+        return
     if not _is_initialized:
         raise RuntimeError("Programer Error: sound module used " +
                 "before load_sounds() call.")

@@ -142,6 +142,9 @@ MIN_SPAWN_PERIOD = 1000
 # Game update speed limit (0 means no limit)
 MAX_FPS = 60
 
+# Whether to load and be able to play sounds
+SOUNDS_ENABLED = True
+
 # Whether to use predetermined random seed(s) for the RNG
 USE_PREDETERMINED_SEEDS = False
 

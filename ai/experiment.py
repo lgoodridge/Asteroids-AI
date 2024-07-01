@@ -21,7 +21,7 @@ def run_experiment():
     Starts or continues an experiment according to
     the configuration parameters set in settings.
     """
-    ai_app = AI_App()
+    ai_app = AI_App(use_ui=False)
     generation_class = algorithm_id_to_generation_class(
             settings.EXPERIMENT_ALGORITHM_ID)
     algorithm_name = generation_class.get_algorithm_name()
@@ -31,6 +31,10 @@ def run_experiment():
     log_filename = os.path.join(experiment_dir, LOG_FILENAME)
     meta_filename = os.path.join(experiment_dir, META_FILENAME)
     best_brain_filename = os.path.join(experiment_dir, BEST_BRAIN_FILENAME)
+
+    # Disable sounds for the duration of the experiment
+    previous_sounds_enabled = settings.SOUNDS_ENABLED
+    settings.SOUNDS_ENABLED = False
 
     # If the experiment directory doesn't exist
     # yet, create it, and start a new experiment
@@ -199,6 +203,7 @@ def run_experiment():
 
     # Clean up
     ai_app.cleanup_simulation()
+    settings.SOUNDS_ENABLED = previous_sounds_enabled
     log.close()
 
 def merge_experiments(exp_dir_list, merged_dir):
