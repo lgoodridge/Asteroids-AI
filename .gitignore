@@ -14,12 +14,12 @@ data/*
 !data/readme
 
 # Experiments Folder
-experiments/*
-!experiments/readme
+experiments/*/*
+!experiments/*/_run.sh
 
 # Old Folders
 examples/18_examples/
-scripts/18_scripts/
+scripts/18_batch_experiments/
 
 # Temp Files
 .*.sw*
