@@ -14,7 +14,7 @@ class App(object):
     """
 
     # Game states
-    SETUP, SPLASH, RUNNING, GAME_OVER = range(4)
+    SETUP, SPLASH, RUNNING, PAUSED, GAME_OVER = range(5)
 
     def __init__(self, use_ui=True):
         """
@@ -187,7 +187,8 @@ class App(object):
         # If the spawn period has expired, spawn a new aimed Asteroid
         if ms_since_last_spawn > self._spawn_period:
             new_spawn_period = self._spawn_period - settings.SPAWN_PERIOD_DEC
-            self._spawn_period = max(new_spawn_period, settings.MIN_SPAWN_PERIOD)
+            self._spawn_period = max(new_spawn_period,
+                    settings.MIN_SPAWN_PERIOD)
             self._last_spawn_time = self.run_time
             Asteroid.spawn(self.asteroids, self.player, True)
 
@@ -220,7 +221,7 @@ class App(object):
         """
         Re-renders all game components.
         """
-        if self._state != App.RUNNING and self._state != App.GAME_OVER:
+        if self._state not in [App.RUNNING, App.PAUSED, App.GAME_OVER]:
             return
 
         # Reset the screen
@@ -262,6 +263,13 @@ class App(object):
                     settings.HEIGHT - fps_text.get_height() / 2)
             render_rects.append(fps_rect)
 
+        # If the game is paused, display paused text
+        if self._state == App.PAUSED:
+            paused_text = self._big_font.render("PAUSED", True, WHITE)
+            paused_rect = render_on(paused_text, self.screen,
+                    settings.WIDTH/2, settings.HEIGHT/2)
+            render_rects.append(paused_rect)
+
         # If the game is over, display game over text
         if self._state == App.GAME_OVER:
             game_over_text = self._big_font.render("GAME OVER", True, WHITE)
@@ -292,7 +300,8 @@ class App(object):
                     event.key == pygame.K_RETURN):
                 self._load_level()
 
-        elif self._state == App.RUNNING or self._state == App.GAME_OVER:
+        elif self._state == App.RUNNING or \
+                self._state == App.PAUSED or self._state == App.GAME_OVER:
 
             # B: Toggle collision boundary display
             if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
@@ -311,6 +320,14 @@ class App(object):
             # N: Spawn a new aimed asteroid
             if event.type == pygame.KEYDOWN and event.key == pygame.K_n:
                 Asteroid.spawn(self.asteroids, self.player, True)
+            # P: Pauses / Unpauses the game
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                if self._state == App.RUNNING:
+                    self._state = App.PAUSED
+                    stop_all_sounds()
+                elif self._state == App.PAUSED:
+                    self._state = App.RUNNING
+                    play_sound("bgm", -1)
             # R: Resets the level
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 self._load_level()
@@ -318,7 +335,7 @@ class App(object):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 settings.PLAY_SFX = not settings.PLAY_SFX
                 if settings.PLAY_SFX:
-                    if self._state != App.GAME_OVER:
+                    if self._state == App.RUNNING:
                         play_sound("bgm", -1)
                 else:
                     stop_all_sounds()
