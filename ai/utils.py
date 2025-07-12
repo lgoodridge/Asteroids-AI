@@ -2,7 +2,7 @@
 Defines utility functions for the AI modules.
 """
 
-import settings
+from settings import get_settings
 
 # Base filenames for experiment / generation files
 BEST_BRAIN_FILENAME = "_best.brn"
@@ -15,14 +15,18 @@ def _algorithm_id_to_class_data(algorithm_id):
     Relates each algorithm ID to a tuple containing
     the corresponding AI Brain and Generation classes
     """
+    settings = get_settings()
+
     if algorithm_id == settings.SIMPLE:
         from simple.simple_brain import Simple_Brain
         from simple.simple_generation import Simple_Generation
         return (Simple_Brain, Simple_Generation)
+    
     elif algorithm_id == settings.NN:
         from nn.nn_brain import NN_Brain
         from nn.nn_generation import NN_Generation
         return (NN_Brain, NN_Generation)
+   
     else:
         raise ValueError(("Programmer Error: '%d' not a recognized"
             "algorithm ID") % algorithm_id)

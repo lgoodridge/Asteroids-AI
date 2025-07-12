@@ -1,8 +1,8 @@
 from ai.generation import Generation
 from nn.nn_brain import NN_Brain
+from settings import get_settings
 import numpy as np
 import os
-import settings
 
 class NN_Generation(Generation):
     """
@@ -24,6 +24,7 @@ class NN_Generation(Generation):
         Breeds the brains in this generation amongst themselves,
         according to their fitness, and returns the new generation.
         """
+        settings = get_settings()
         new_brains = []
         num_brains = len(self._brains)
 

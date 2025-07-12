@@ -1,6 +1,6 @@
 from ai.utils import META_FILENAME, SUMMARY_FILENAME
+from settings import get_settings
 import os
-import settings
 
 class Generation(object):
     """
@@ -8,6 +8,7 @@ class Generation(object):
     """
 
     def __init__(self, generation_number, ai_app, brains=None):
+        settings = get_settings()
         self._generation_number = generation_number
         self._app = ai_app
         self._evaluated = False
@@ -24,6 +25,7 @@ class Generation(object):
         Runs a simulation on each brain in the generation,
         and sets their fitness score to the simulation result.
         """
+        settings = get_settings()
         num_simulations = settings.NUM_EVALUATION_SIMULATIONS
         if settings.USE_PREDETERMINED_SEEDS:
             seeds = settings.PREDETERMINED_SEEDS

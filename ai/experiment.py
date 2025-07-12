@@ -9,9 +9,9 @@ from ai.utils import algorithm_id_to_generation_class, \
         BEST_BRAIN_FILENAME, LOG_FILENAME, META_FILENAME
 from collections import OrderedDict
 from datetime import datetime
+from settings import get_settings
 import json
 import os
-import settings
 import shutil
 import sys
 import traceback
@@ -21,6 +21,7 @@ def run_experiment():
     Starts or continues an experiment according to
     the configuration parameters set in settings.
     """
+    settings = get_settings()
     ai_app = AI_App(use_ui=False)
     generation_class = algorithm_id_to_generation_class(
             settings.EXPERIMENT_ALGORITHM_ID)
@@ -220,7 +221,8 @@ def merge_experiments(exp_dir_list, merged_dir):
     will determine its algorithm and generation population
     from the configuration parameters set in settings.
     """
-    ai_app = AI_App()
+    settings = get_settings()
+    ai_app = AI_App(use_ui=False)
     generation_class = algorithm_id_to_generation_class(
             settings.EXPERIMENT_ALGORITHM_ID)
     algorithm_name = generation_class.get_algorithm_name()
@@ -228,6 +230,10 @@ def merge_experiments(exp_dir_list, merged_dir):
     experiment_name = os.path.basename(os.path.normpath(merged_dir))
     log_filename = os.path.join(merged_dir, LOG_FILENAME)
     meta_filename = os.path.join(merged_dir, META_FILENAME)
+
+    # Disable sounds for the duration of the experiment
+    previous_sounds_enabled = settings.SOUNDS_ENABLED
+    settings.SOUNDS_ENABLED = False
 
     def get_last_gen_dir(exp_dir):
         """
@@ -241,7 +247,7 @@ def merge_experiments(exp_dir_list, merged_dir):
         if len(gen_dirs) == 0:
             raise ValueError(("Parent experiment directory '%s' "
                     "doesn't have any completed generations") % exp_dir)
-        return os.path.join(exp_dir, gen_dirs[-1])
+        return os.path.join(exp_dir, sorted(gen_dirs)[-1])
 
     # Ensure at least two parent experiments were provided,
     # then get the last generation directories for each of them
@@ -277,7 +283,7 @@ def merge_experiments(exp_dir_list, merged_dir):
         if len(gen_brain_files) < num_brains:
             raise ValueError(("Parent experiment directory '%s' does not "
                     "have enough brains in its last generation to conribute")
-                    % gen_dir_path)
+                    % gen_dir)
         for brain_file in gen_brain_files[:num_brains]:
             brains.append(generation_class.load_brain(brain_file))
     generation = generation_class(0, ai_app, brains)
@@ -337,6 +343,7 @@ def merge_experiments(exp_dir_list, merged_dir):
     # Clean up
     _write_to_log(log, "Finished initializing merged experiment.\n", True)
     ai_app.cleanup_simulation()
+    settings.SOUNDS_ENABLED = previous_sounds_enabled
     log.close()
 
 def _write_to_log(log, message, force_echo=False):
@@ -346,6 +353,7 @@ def _write_to_log(log, message, force_echo=False):
     If force_echo or EXPERIMENT_ECHO_LOGS is True,
     prints log messages to standard out as well.
     """
+    settings = get_settings()
     print(message, end="", file=log)
     log.flush()
     if force_echo or settings.EXPERIMENT_ECHO_LOGS:

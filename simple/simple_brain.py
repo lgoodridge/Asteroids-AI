@@ -1,7 +1,5 @@
 from ai.ai_brain import AI_Brain
 from ai.sensor import sense_n_dir
-import os
-import settings
 
 class Simple_Brain(AI_Brain):
     """

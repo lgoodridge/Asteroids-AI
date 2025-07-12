@@ -5,8 +5,8 @@ Usage: python manage.py [--help]
 """
 
 from ai.experiment import merge_experiments
+from settings import get_settings, load_settings_from_cli
 import click
-import settings
 
 class TransparentGroup(click.Group):
     """
@@ -47,8 +47,8 @@ def merge(ctx, parent_dirs, output_dir):
     parent_dirs = [x for x in list(parent_dirs) if not x.startswith("--")]
     if output_dir.startswith("--"):
         output_dir = parent_dirs.pop() if len(parent_dirs) > 0 else ""
-    # Configure settings, then actually merge the experiments
-    settings.configure_settings()
+    # Load settings from cli, then actually merge the experiments
+    load_settings_from_cli()
     merge_experiments(parent_dirs, output_dir)
 
 @manage.command('settings', short_help='View configurable settings')
@@ -57,6 +57,7 @@ def view_settings(ctx):
     """
     View the configurable settings for the other commands.
     """
+    settings = get_settings()
     click.echo(settings.cli_configure_settings.get_help(ctx))
 
 if __name__ == "__main__":

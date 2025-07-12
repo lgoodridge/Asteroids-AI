@@ -1,7 +1,7 @@
 from asteroids.utils import get_render_rect, GREEN, RED
+from settings import get_settings
 import math
 import pygame
-import settings
 
 class Component(object):
     """
@@ -34,6 +34,7 @@ class Component(object):
         Draws a circle around the collision boundary
         of the component if specified in settings.
         """
+        settings = get_settings()
         if settings.DEBUG_MODE:
             pygame.draw.circle(screen, GREEN, (int(self.x), int(self.y)),
                     self.radius, 1)
@@ -53,6 +54,7 @@ class Component(object):
         """
         If the component is out of the screen bounds, wrap it to other side.
         """
+        settings = get_settings()
         if self.x < -settings.SCREEN_EDGE_THICKNESS:
             self.x = settings.WIDTH + settings.SCREEN_EDGE_THICKNESS
         if self.x > settings.WIDTH + settings.SCREEN_EDGE_THICKNESS:

@@ -1,6 +1,5 @@
 from ai.generation import Generation
 from simple.simple_brain import Simple_Brain
-import os
 
 class Simple_Generation(Generation):
     """

@@ -43,8 +43,11 @@ var/
 *.egg-info/
 *.egg
 
-# Pyenv
+# pyenv
 .python-version
+
+# direnv
+.envrc
 
 # Other Files
 notes/

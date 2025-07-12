@@ -3,10 +3,10 @@ from asteroids.bullet import Bullet
 from asteroids.player import Player
 from asteroids.sound import load_sounds, play_sound, stop_sound, stop_all_sounds
 from asteroids.utils import render_on, BLACK, GRAY, WHITE
+from settings import get_settings
 import math
 import pygame
 import random
-import settings
 
 class App(object):
     """
@@ -40,6 +40,8 @@ class App(object):
         if self._has_started:
             raise RuntimeError("Programmer Error: App._setup() called twice.")
         self._has_started = True
+
+        settings = get_settings()
 
         # If the UI is enabled, set up relevant components
         if self._use_ui:
@@ -95,6 +97,7 @@ class App(object):
         """
         Loads the splash page for human players.
         """
+        settings = get_settings()
         self._state = App.SPLASH
         self._splash_title = self._big_font.render("Asteroids",
                 True, WHITE)
@@ -110,6 +113,7 @@ class App(object):
         """
         Loads the initial game components for the level.
         """
+        settings = get_settings()
         self._state = App.RUNNING
 
         # Use saved RNG seed if one was provided
@@ -162,6 +166,8 @@ class App(object):
         """
         if self._state != App.RUNNING and self._state != App.GAME_OVER:
             return
+
+        settings = get_settings()
 
         # If the player is destroyed, transition to Game Over state or quit.
         if self._state == App.RUNNING and self.player.destroyed:
@@ -223,6 +229,8 @@ class App(object):
         """
         if self._state not in [App.RUNNING, App.PAUSED, App.GAME_OVER]:
             return
+
+        settings = get_settings()
 
         # Reset the screen
         self.screen.fill((0, 0, 0))
@@ -288,6 +296,8 @@ class App(object):
         """
         Interprets and handles an asynchronous event.
         """
+        settings = get_settings()
+
         # Stop running when the close button or 'Q' is pressed
         if event.type == pygame.QUIT or \
                 event.type == pygame.KEYDOWN and event.key == pygame.K_q:
@@ -378,6 +388,7 @@ class App(object):
         """
         Sets up the game and begins the main execution loop.
         """
+        settings = get_settings()
         self._setup(seed=seed)
 
         # Load the splash page, and wait for input to continue
@@ -400,6 +411,7 @@ class App(object):
         """
         Creates and returns a new Player in the center of the screen.
         """
+        settings = get_settings()
         return Player(settings.WIDTH/2, settings.HEIGHT/2)
 
     def _update_player(self):

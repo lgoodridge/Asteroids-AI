@@ -1,7 +1,7 @@
 from ai.activations import get_activation_function, threshold_activation
+from settings import get_settings
 import json
 import numpy as np
-import settings
 
 class Neural_Network(object):
     """
@@ -17,6 +17,7 @@ class Neural_Network(object):
         Initializes a neural network with random weight values
         that accomodates the specified number of inputs and outputs.
         """
+        settings = get_settings()
         weight_matrices = []
 
         # Each hidden layer has a weight matrix of size (# inputs x # outputs),
@@ -43,6 +44,7 @@ class Neural_Network(object):
         Feeds forward the input values through the network,
         and returns a vector of outputs, all either 0 or 1.
         """
+        settings = get_settings()
         activation_fn = get_activation_function(settings.HIDDEN_LAYER_ACTIVATION_FN)
         curr_inputs = input_values
 
@@ -73,6 +75,8 @@ class Neural_Network(object):
         if len(self._weight_matrices) != len(other_nn._weight_matrices):
             raise RuntimeError("Programmer Error: Attempted crossover "
                     "between NNs with different numbers of hidden layers.")
+
+        settings = get_settings()
 
         # Crossover each layer's weight matrix
         new_weight_matrices = []

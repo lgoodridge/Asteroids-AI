@@ -2,9 +2,9 @@
 Handles BGM and sound effects for the Asteroids game.
 """
 
+from settings import get_settings
 import os
 import pygame
-import settings
 
 # Whether the sound module has been initialized
 _is_initialized = False
@@ -40,6 +40,7 @@ def play_sound(sound_name, loops=0):
     Plays the sound with the provided name.
     The name should not include the file extension.
     """
+    settings = get_settings()
     if not settings.SOUNDS_ENABLED or not settings.PLAY_SFX:
         return
     if not _is_initialized:
@@ -52,6 +53,7 @@ def stop_sound(sound_name, fadeout_ms=0):
     Fades out and stops the sound with the provided name.
     Only necessary when sound was previously looped.
     """
+    settings = get_settings()
     if not settings.SOUNDS_ENABLED:
         return
     if not _is_initialized:
@@ -63,6 +65,7 @@ def stop_all_sounds():
     """
     Immediately halts playback of all sounds.
     """
+    settings = get_settings()
     if not settings.SOUNDS_ENABLED:
         return
     if not _is_initialized:

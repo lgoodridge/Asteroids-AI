@@ -2,8 +2,8 @@
 Implementations of several activation functions.
 """
 
+from settings import get_settings
 import math
-import settings
 
 def log_activation(x):
     """
@@ -40,6 +40,7 @@ def get_activation_function(function_id):
     Returns the function specified by the
     provided function ID, as defined in settings
     """
+    settings = get_settings()
     if function_id == settings.LOG:
         return log_activation
     elif function_id == settings.RELU:

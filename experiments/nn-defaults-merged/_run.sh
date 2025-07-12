@@ -12,7 +12,7 @@ python start.py --run-mode=experiment --experiment-algorithm-id=nn --experiment-
 python start.py --run-mode=experiment --experiment-algorithm-id=nn --experiment-directory=$BASE_DIR/defaults-2 --use-predetermined-seeds=true -s 2
 
 # Merge the two experiments, and train on a different seed
-python manage.py merge $BASE_DIR/defaults-1 $BASE_DIR/defaults-2 $BASE_DIR/defaults-merged --experiment-algorithm-id=nn --use-predetermined-seeds=true -s 3
+python manage.py merge $BASE_DIR/defaults-1 $BASE_DIR/defaults-2 $BASE_DIR/defaults-merged --experiment-algorithm-id=nn --use-predetermined-seeds=true --predetermined-seeds=3
 
 python start.py --run-mode=experiment --experiment-algorithm-id=nn --experiment-directory=$BASE_DIR/defaults-merged --use-predetermined-seeds=true -s 3
 

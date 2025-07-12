@@ -8,12 +8,13 @@ from ai.ai_app import AI_App
 from ai.experiment import run_experiment
 from ai.utils import algorithm_id_to_ai_brain_class
 from asteroids.app import App
-import settings
+from settings import get_settings, load_settings_from_cli
 
 if __name__ == "__main__":
 
     # Configure settings according to command line arguments
-    settings.configure_settings()
+    load_settings_from_cli()
+    settings = get_settings()
 
     # Start the game if specified
     if settings.RUN_MODE == settings.GAME:
@@ -26,7 +27,8 @@ if __name__ == "__main__":
             App().start_game(seed=seed)
         else:
             ai_brain_class = algorithm_id_to_ai_brain_class(
-                    settings.GAME_ALGORITHM_ID)
+                settings.GAME_ALGORITHM_ID
+            )
             ai_brain = ai_brain_class.load(settings.GAME_AI_BRAIN)
             AI_App().start_game(ai_brain, seed=seed)
 

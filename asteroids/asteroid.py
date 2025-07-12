@@ -1,10 +1,10 @@
 from asteroids.component import Component
 from asteroids.utils import angle_to_xy, get_rotated_vertices, WHITE
 from asteroids.sound import play_sound
+from settings import get_settings
 import math
 import pygame
 import random
-import settings
 
 class Asteroid(Component):
     """
@@ -57,6 +57,7 @@ class Asteroid(Component):
         If aimed is True, the asteroid spawns moving in the
         direction of the player ship.
         """
+        settings = get_settings()
         [NORTH, EAST, SOUTH, WEST] = range(4)
 
         # Get the possible spawn edges

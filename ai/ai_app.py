@@ -1,7 +1,7 @@
 from ai.ai_player import AI_Player
 from asteroids.app import App
 from asteroids.utils import render_on, WHITE
-import settings
+from settings import get_settings
 
 class AI_App(App):
     """
@@ -13,6 +13,7 @@ class AI_App(App):
         """
         Creates and returns a new AI_Player in the center of the screen.
         """
+        settings = get_settings()
         return AI_Player(settings.WIDTH/2, settings.HEIGHT/2, self._ai_brain)
 
     def _update_player(self):
@@ -27,6 +28,7 @@ class AI_App(App):
         Renders overlay components used in AI Spectator mode.
         Returns a list of rectangles to be re-rendered.
         """
+        settings = get_settings()
         render_rects = []
 
         # Show fitness stats in top-left, under Score, if necessary
@@ -71,6 +73,7 @@ class AI_App(App):
         """
         Returns the current fitness score.
         """
+        settings = get_settings()
         num_missed_shots = self.player.num_bullets_fired - self.asteroids_hit
         raw_fitness = ((self.score * settings.FITNESS_SCORE_WEIGHT) +
                 (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT) -

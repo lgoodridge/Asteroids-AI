@@ -2,9 +2,9 @@
 Defines utility function for the Asteroids game.
 """
 
+from settings import get_settings
 import math
 import pygame
-import settings
 
 # Commonly used colors
 BLACK = (0, 0, 0)
@@ -49,6 +49,7 @@ def get_looped_point(x1, y1, x2, y2):
     """
     Returns the looped values of x2 and y2 relative to x1 and y1.
     """
+    settings = get_settings()
     (looped_x2, looped_y2) = (x2, y2)
     screen_width = settings.WIDTH + (2.0 * settings.SCREEN_EDGE_THICKNESS)
     screen_height = settings.HEIGHT + (2.0 * settings.SCREEN_EDGE_THICKNESS)

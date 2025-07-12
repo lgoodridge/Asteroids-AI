@@ -2,9 +2,9 @@ from asteroids.bullet import Bullet
 from asteroids.component import Component
 from asteroids.utils import get_rotated_vertices, has_collided, WHITE
 from asteroids.sound import play_sound, stop_sound
+from settings import get_settings
 import math
 import pygame
-import settings
 
 class Player(Component):
     """
@@ -78,6 +78,7 @@ class Player(Component):
         """
         Engages the ships boosters.
         """
+        settings = get_settings()
         if not self._boosting and not settings.DISABLE_BOOSTING:
             self._boosting = True
             play_sound("thrust", -1)
@@ -86,6 +87,7 @@ class Player(Component):
         """
         Disengages the ship's boosters.
         """
+        settings = get_settings()
         if self._boosting and not settings.ALWAYS_BOOSTING:
             self._boosting = False
             stop_sound("thrust", 400)
@@ -108,6 +110,7 @@ class Player(Component):
         """
         Shoots a bullet in the current direction if possible.
         """
+        settings = get_settings()
         if len(bullets) < Player.MAX_ONSCREEN_BULLETS and \
                 self._remaining_reload_time == 0 and \
                 not settings.DISABLE_SHOOTING:
@@ -121,6 +124,7 @@ class Player(Component):
         Returns whether the player ship has collided with
         any asteroids, destroying the player ship if so.
         """
+        settings = get_settings()
         if self.destroyed or settings.DEBUG_MODE:
             return False
         for asteroid in asteroids:
@@ -148,6 +152,7 @@ class Player(Component):
         the AI algorithm on sensor_data, and performs the
         appropiate actions in response.
         """
+        settings = get_settings()
         if self._remaining_reload_time != 0:
             self._remaining_reload_time -= 1
         if settings.ALWAYS_BOOSTING and not self._boosting:

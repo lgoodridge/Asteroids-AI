@@ -2,9 +2,9 @@ from ai.ai_brain import AI_Brain
 from ai.ai_player import AI_Player
 from ai.sensor import sense_n_dir
 from nn.neural_network import Neural_Network
+from settings import get_settings
 import json
 import os
-import settings
 
 class NN_Brain(AI_Brain):
     """
@@ -13,6 +13,7 @@ class NN_Brain(AI_Brain):
 
     def __init__(self, network=None):
         super(NN_Brain, self).__init__()
+        settings = get_settings()
         if network:
             self.network = network
         else:
@@ -24,6 +25,7 @@ class NN_Brain(AI_Brain):
         Checks the state of the world, and returns a feature
         matrix to be used as input to the AI update function.
         """
+        settings = get_settings()
         return sense_n_dir(settings.NUM_SENSOR_REGIONS, player, asteroids,
                 settings.MAX_SENSOR_DISTANCE, shape=settings.SENSOR_OUTPUT_SHAPE)
 
