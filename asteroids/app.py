@@ -22,10 +22,10 @@ class App(object):
         If use_ui is True, loads UI components as well.
         """
         pygame.init()
-        pygame.mixer.init()
 
         self._use_ui = use_ui
         if self._use_ui:
+            pygame.mixer.init()
             load_sounds()
 
         self._has_started = False

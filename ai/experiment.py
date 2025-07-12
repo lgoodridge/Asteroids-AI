@@ -22,7 +22,7 @@ def run_experiment():
     the configuration parameters set in settings.
     """
     settings = get_settings()
-    ai_app = AI_App(use_ui=False)
+    ai_apps = [AI_App(use_ui=False) for _ in range(settings.NUM_THREADS)]
     generation_class = algorithm_id_to_generation_class(
             settings.EXPERIMENT_ALGORITHM_ID)
     algorithm_name = generation_class.get_algorithm_name()
@@ -114,7 +114,7 @@ def run_experiment():
         print("Loading generation %03d... " % (generation_idx-1), end="")
         generation_dirname = os.path.join(experiment_dir,
                 "gen%03d" % (generation_idx-1))
-        generation = generation_class.load(generation_dirname, ai_app)
+        generation = generation_class.load(generation_dirname, ai_apps)
         print("Complete")
 
     # Create and evaluate generations of AI
@@ -140,7 +140,7 @@ def run_experiment():
         _write_to_log(log, "Generation %d: Creating" % generation_idx)
         try:
             if generation is None:
-                generation = generation_class(generation_idx, ai_app)
+                generation = generation_class(generation_idx, ai_apps)
             else:
                 generation = generation.breed()
         except Exception as e:
@@ -203,7 +203,7 @@ def run_experiment():
         _write_meta_file(meta_filename, meta_dict)
 
     # Clean up
-    ai_app.cleanup_simulation()
+    [ai_app.cleanup_simulation() for ai_app in ai_apps]
     settings.SOUNDS_ENABLED = previous_sounds_enabled
     log.close()
 
@@ -222,7 +222,7 @@ def merge_experiments(exp_dir_list, merged_dir):
     from the configuration parameters set in settings.
     """
     settings = get_settings()
-    ai_app = AI_App(use_ui=False)
+    ai_apps = [AI_App(use_ui=False) for _ in range(settings.NUM_THREADS)]
     generation_class = algorithm_id_to_generation_class(
             settings.EXPERIMENT_ALGORITHM_ID)
     algorithm_name = generation_class.get_algorithm_name()
@@ -286,7 +286,7 @@ def merge_experiments(exp_dir_list, merged_dir):
                     % gen_dir)
         for brain_file in gen_brain_files[:num_brains]:
             brains.append(generation_class.load_brain(brain_file))
-    generation = generation_class(0, ai_app, brains)
+    generation = generation_class(0, ai_apps, brains)
 
     # Create the experiment log file
     log = open(log_filename, "w")
@@ -342,7 +342,7 @@ def merge_experiments(exp_dir_list, merged_dir):
 
     # Clean up
     _write_to_log(log, "Finished initializing merged experiment.\n", True)
-    ai_app.cleanup_simulation()
+    [ai_app.cleanup_simulation() for ai_app in ai_apps]
     settings.SOUNDS_ENABLED = previous_sounds_enabled
     log.close()
 

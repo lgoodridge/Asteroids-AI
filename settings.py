@@ -3,9 +3,9 @@ Defines settings for the Asteroids Game / AI.
 """
 
 import click
+import multiprocessing
 import os
 import sys
-
 
 class Settings:
     """
@@ -81,6 +81,10 @@ class Settings:
         # Whether to echo messages written to the
         # experiment log to the console as well
         self.EXPERIMENT_ECHO_LOGS = True
+
+        # Number of concurrent processes to use for multithreaded
+        # operations (e.g. evaluating fitnesses)
+        self.NUM_THREADS = multiprocessing.cpu_count()
 
         # Maximum number of generations to run the
         # experiment for, if it doesn't get ended early
@@ -372,6 +376,12 @@ def load_settings_from_cli():
     type=click.Choice([Settings.SIMPLE, Settings.NN]),
     default=None,
     help="Algorithm to use for the next started experiment.",
+)
+@click.option(
+    "--num-threads",
+    type=int,
+    default=None,
+    help="Number of workers to use for concurrent operations."
 )
 @click.option(
     "--experiment-directory",

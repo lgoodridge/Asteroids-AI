@@ -9,9 +9,9 @@ class NN_Generation(Generation):
     Defines a generation of Neural Network AI brains.
     """
 
-    def __init__(self, generation_number, ai_app, brains=None):
+    def __init__(self, generation_number, ai_apps, brains=None):
         super(NN_Generation, self).__init__(generation_number,
-                ai_app, brains)
+                ai_apps, brains)
 
     def _create_initial_brains(self, num_brains):
         """
@@ -76,7 +76,7 @@ class NN_Generation(Generation):
         map(lambda x: x.mutate(settings.MUTATION_RATE),
                 new_brains[num_champions:])
 
-        return NN_Generation(self._generation_number+1, self._app,
+        return NN_Generation(self._generation_number+1, self._apps,
                 brains=new_brains)
 
     @staticmethod
