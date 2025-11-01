@@ -1,7 +1,10 @@
+import json
+
+import numpy as np
+
 from ai.activations import get_activation_function, threshold_activation
 from settings import get_settings
-import json
-import numpy as np
+
 
 class Neural_Network(object):
     """
@@ -29,12 +32,15 @@ class Neural_Network(object):
             # and the last layer's outputs are the network's outputs. All
             # other connections are between hidden layers.
             in_size = num_inputs if i == 0 else settings.HIDDEN_LAYER_SIZE
-            out_size = num_outputs if i == settings.NUM_HIDDEN_LAYERS \
-                    else settings.HIDDEN_LAYER_SIZE
+            out_size = (
+                num_outputs
+                if i == settings.NUM_HIDDEN_LAYERS
+                else settings.HIDDEN_LAYER_SIZE
+            )
 
             # Initialize the weights as random values between -1 and 1.
             # Note: we add an extra row of weights for the bias.
-            layer_weights = (np.random.rand(in_size+1, out_size) - 0.5) * 2.0
+            layer_weights = (np.random.rand(in_size + 1, out_size) - 0.5) * 2.0
             weight_matrices.append(layer_weights)
 
         return cls(weight_matrices)
@@ -45,7 +51,9 @@ class Neural_Network(object):
         and returns a vector of outputs, all either 0 or 1.
         """
         settings = get_settings()
-        activation_fn = get_activation_function(settings.HIDDEN_LAYER_ACTIVATION_FN)
+        activation_fn = get_activation_function(
+            settings.HIDDEN_LAYER_ACTIVATION_FN
+        )
         curr_inputs = input_values
 
         # Compute the outputs of each layer, by dot multiplying the layer's
@@ -62,8 +70,9 @@ class Neural_Network(object):
         # sending it through the threshold activation function.
         inputs_with_bias = np.append(curr_inputs, 1)
         raw_outputs = np.dot(inputs_with_bias, self._weight_matrices[-1])
-        threshold_fn = lambda x: threshold_activation(x,
-                settings.OUTPUT_ACTIVATION_THRESHOLD)
+        threshold_fn = lambda x: threshold_activation(
+            x, settings.OUTPUT_ACTIVATION_THRESHOLD
+        )
         return [threshold_fn(x) for x in raw_outputs]
 
     def crossover(self, other_nn):
@@ -73,8 +82,10 @@ class Neural_Network(object):
         returns a new Neural Network with this mixed weight matrix.
         """
         if len(self._weight_matrices) != len(other_nn._weight_matrices):
-            raise RuntimeError("Programmer Error: Attempted crossover "
-                    "between NNs with different numbers of hidden layers.")
+            raise RuntimeError(
+                "Programmer Error: Attempted crossover "
+                "between NNs with different numbers of hidden layers."
+            )
 
         settings = get_settings()
 
@@ -83,13 +94,17 @@ class Neural_Network(object):
         for i in range(len(self._weight_matrices)):
             if settings.CROSSOVER_MECHANISM == settings.RANDOM:
                 weight_matrix = Neural_Network._random_crossover(
-                        self._weight_matrices[i], other_nn._weight_matrices[i])
+                    self._weight_matrices[i], other_nn._weight_matrices[i]
+                )
             elif settings.CROSSOVER_MECHANISM == settings.SPLIT:
                 weight_matrix = Neural_Network._split_crossover(
-                        self._weight_matrices[i], other_nn._weight_matrices[i])
+                    self._weight_matrices[i], other_nn._weight_matrices[i]
+                )
             else:
-                raise RuntimeError("Programmer Error: Unsupported crossover " +
-                        "mechanism ID '%d'" % settings.CROSSOVER_MECHANISM)
+                raise RuntimeError(
+                    "Programmer Error: Unsupported crossover "
+                    + "mechanism ID '%d'" % settings.CROSSOVER_MECHANISM
+                )
             new_weight_matrices.append(weight_matrix)
 
         return Neural_Network(new_weight_matrices)
@@ -103,8 +118,9 @@ class Neural_Network(object):
             for row in range(self._weight_matrices[layer].shape[0]):
                 for col in range(self._weight_matrices[layer].shape[1]):
                     if float(np.random.random(1)) < mutation_rate:
-                        self._weight_matrices[layer][row][col] = \
-                                (float(np.random.random(1)) - 0.5) * 2.0
+                        self._weight_matrices[layer][row][col] = (
+                            float(np.random.random(1)) - 0.5
+                        ) * 2.0
 
     def serialize(self):
         """
@@ -128,8 +144,10 @@ class Neural_Network(object):
         either of the two parents.
         """
         if matrixA.shape != matrixB.shape:
-            raise RuntimeError("Programmer Error: Attempted crossover "
-                    "between matrices with different shapes.")
+            raise RuntimeError(
+                "Programmer Error: Attempted crossover "
+                "between matrices with different shapes."
+            )
 
         # Inherit each value from a parent at random
         new_matrix = np.zeros(matrixA.shape)
@@ -147,8 +165,10 @@ class Neural_Network(object):
         parent A, and all other values come from parent B.
         """
         if matrixA.shape != matrixB.shape:
-            raise RuntimeError("Programmer Error: Attempted crossover "
-                    "between matrices with different shapes.")
+            raise RuntimeError(
+                "Programmer Error: Attempted crossover "
+                "between matrices with different shapes."
+            )
 
         # Pick a random split point
         new_matrix = np.zeros(matrixA.shape)
@@ -159,7 +179,10 @@ class Neural_Network(object):
         # first parent, and the rest from the second
         for row in range(new_matrix.shape[0]):
             for col in range(new_matrix.shape[1]):
-                parent = matrixA if (row < split_row) and \
-                        (col < split_col) else matrixB
+                parent = (
+                    matrixA
+                    if (row < split_row) and (col < split_col)
+                    else matrixB
+                )
                 new_matrix[row][col] = parent[row][col]
         return new_matrix

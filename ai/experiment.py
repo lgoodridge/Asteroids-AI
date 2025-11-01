@@ -3,18 +3,25 @@ Defines functions for running AI experiments.
 """
 
 from __future__ import print_function
-from ai.ai_app import AI_App
-from ai.generation import Generation
-from ai.utils import algorithm_id_to_generation_class, \
-        BEST_BRAIN_FILENAME, LOG_FILENAME, META_FILENAME
-from collections import OrderedDict
-from datetime import datetime
-from settings import get_settings
+
 import json
 import os
 import shutil
 import sys
 import traceback
+from collections import OrderedDict
+from datetime import datetime
+
+from ai.ai_app import AI_App
+from ai.generation import Generation
+from ai.utils import (
+    BEST_BRAIN_FILENAME,
+    LOG_FILENAME,
+    META_FILENAME,
+    algorithm_id_to_generation_class,
+)
+from settings import get_settings
+
 
 def run_experiment():
     """
@@ -24,7 +31,8 @@ def run_experiment():
     settings = get_settings()
     ai_apps = [AI_App(use_ui=False) for _ in range(settings.NUM_THREADS)]
     generation_class = algorithm_id_to_generation_class(
-            settings.EXPERIMENT_ALGORITHM_ID)
+        settings.EXPERIMENT_ALGORITHM_ID
+    )
     algorithm_name = generation_class.get_algorithm_name()
 
     experiment_dir = settings.EXPERIMENT_DIRECTORY
@@ -46,8 +54,9 @@ def run_experiment():
         # the parent directory exists beforehand
         parent_dir = os.path.dirname(os.path.normpath(experiment_dir))
         if parent_dir != "" and not os.path.exists(parent_dir):
-            raise ValueError("Parent directory '%s' does not exist." %
-                    parent_dir)
+            raise ValueError(
+                "Parent directory '%s' does not exist." % parent_dir
+            )
         os.mkdir(experiment_dir)
 
         best_fitness = 0
@@ -56,13 +65,15 @@ def run_experiment():
         stagnation_idx = 0
 
         # Create the experiment meta file
-        meta_dict = OrderedDict({
+        meta_dict = OrderedDict(
+            {
                 "AI Algorithm": algorithm_name,
                 "Best Fitness": best_fitness,
                 "Best Brain": best_brain_tag,
                 "Generation Index": generation_idx,
                 "Stagnation Index": stagnation_idx,
-        })
+            }
+        )
         try:
             _write_meta_file(meta_filename, meta_dict)
         except Exception as e:
@@ -75,7 +86,9 @@ def run_experiment():
         print("========================================", file=log)
         print("=     STARTED ON %s" % current_time_str, file=log)
         print("========================================", file=log)
-        _write_to_log(log, "Starting experiment '%s':\n" % experiment_name, True)
+        _write_to_log(
+            log, "Starting experiment '%s':\n" % experiment_name, True
+        )
 
     # If it does, resume the previous experiment
     elif os.path.isdir(experiment_dir):
@@ -103,27 +116,32 @@ def run_experiment():
     # If the provided location exists, but is
     # not a directory, fail and alert the user
     else:
-        raise ValueError(("Experiment Directory '%s' exists, but "
-                "is not a directory.") % experiment_dir)
+        raise ValueError(
+            ("Experiment Directory '%s' exists, but is not a directory.")
+            % experiment_dir
+        )
 
     generation = None
     start_idx = generation_idx
 
     # If we are continuing an experiment, load the last completed generation
     if generation_idx > 0:
-        print("Loading generation %03d... " % (generation_idx-1), end="")
-        generation_dirname = os.path.join(experiment_dir,
-                "gen%03d" % (generation_idx-1))
+        print("Loading generation %03d... " % (generation_idx - 1), end="")
+        generation_dirname = os.path.join(
+            experiment_dir, "gen%03d" % (generation_idx - 1)
+        )
         generation = generation_class.load(generation_dirname, ai_apps)
         print("Complete")
 
     # Create and evaluate generations of AI
     # brains until an end condition is reached
-    for generation_idx in range(start_idx, settings.MAX_GENERATIONS+1):
-        generation_dirname = os.path.join(experiment_dir,
-                "gen%03d" % generation_idx)
-        generation_meta_filename = os.path.join(generation_dirname,
-                META_FILENAME)
+    for generation_idx in range(start_idx, settings.MAX_GENERATIONS + 1):
+        generation_dirname = os.path.join(
+            experiment_dir, "gen%03d" % generation_idx
+        )
+        generation_meta_filename = os.path.join(
+            generation_dirname, META_FILENAME
+        )
 
         # End the experiment if we've reached an end condition
         if generation_idx == settings.MAX_GENERATIONS:
@@ -144,8 +162,12 @@ def run_experiment():
             else:
                 generation = generation.breed()
         except Exception as e:
-            _write_to_log(log, "\nERROR CREATING GENERATION %d\n%s" % \
-                    (generation_idx, traceback.format_exc()), True)
+            _write_to_log(
+                log,
+                "\nERROR CREATING GENERATION %d\n%s"
+                % (generation_idx, traceback.format_exc()),
+                True,
+            )
             return
 
         # Evaluate the generation
@@ -155,22 +177,34 @@ def run_experiment():
             best_brain_id = generation.get_best_brain_id()
             best_brain = generation.get_brain(best_brain_id)
         except Exception as e:
-            _write_to_log(log, "\nERROR EVALUATING GENERATION %d\n%s" % \
-                    (generation_idx, traceback.format_exc()), True)
+            _write_to_log(
+                log,
+                "\nERROR EVALUATING GENERATION %d\n%s"
+                % (generation_idx, traceback.format_exc()),
+                True,
+            )
             return
-        _write_to_log(log, ": Best Fitness = %.2f - Saving" % best_brain.fitness)
+        _write_to_log(
+            log, ": Best Fitness = %.2f - Saving" % best_brain.fitness
+        )
 
         # Save the generation
         try:
             generation.save(generation_dirname)
         except Exception as e:
-            _write_to_log(log, "\nERROR SAVING GENERATION %d\n%s" % \
-                    (generation_idx, traceback.format_exc()), True)
+            _write_to_log(
+                log,
+                "\nERROR SAVING GENERATION %d\n%s"
+                % (generation_idx, traceback.format_exc()),
+                True,
+            )
             return
         _write_to_log(log, "\n")
 
         # Determine whether progress was made
-        progress_threshold = best_fitness + settings.PROGRESS_IMPROVEMENT_THRESHOLD
+        progress_threshold = (
+            best_fitness + settings.PROGRESS_IMPROVEMENT_THRESHOLD
+        )
         if best_brain.fitness < progress_threshold:
             stagnation_idx += 1
         else:
@@ -179,33 +213,43 @@ def run_experiment():
         # Update the best brain and fitness, if necessary
         if best_brain.fitness >= best_fitness:
             best_fitness = best_brain.fitness
-            best_brain_tag = "Generation: %03d - ID: %03d" % \
-                    (generation_idx, best_brain_id)
-            best_brain_filename = os.path.join(experiment_dir,
-                    BEST_BRAIN_FILENAME)
+            best_brain_tag = "Generation: %03d - ID: %03d" % (
+                generation_idx,
+                best_brain_id,
+            )
+            best_brain_filename = os.path.join(
+                experiment_dir, BEST_BRAIN_FILENAME
+            )
             if os.path.exists(best_brain_filename):
                 os.remove(best_brain_filename)
             try:
                 best_brain.save(best_brain_filename)
             except Exception as e:
-                _write_to_log(log, "\nERROR SAVING BEST BRAIN OF GENERATION " + \
-                        "%d\n%s" % (generation_idx, traceback.format_exc()), True)
+                _write_to_log(
+                    log,
+                    "\nERROR SAVING BEST BRAIN OF GENERATION "
+                    + "%d\n%s" % (generation_idx, traceback.format_exc()),
+                    True,
+                )
                 return
 
         # Update meta file
-        meta_dict = OrderedDict({
+        meta_dict = OrderedDict(
+            {
                 "AI Algorithm": algorithm_name,
                 "Best Fitness": best_fitness,
                 "Best Brain": best_brain_tag,
-                "Generation Index": generation_idx+1,
+                "Generation Index": generation_idx + 1,
                 "Stagnation Index": stagnation_idx,
-        })
+            }
+        )
         _write_meta_file(meta_filename, meta_dict)
 
     # Clean up
     [ai_app.cleanup_simulation() for ai_app in ai_apps]
     settings.SOUNDS_ENABLED = previous_sounds_enabled
     log.close()
+
 
 def merge_experiments(exp_dir_list, merged_dir):
     """
@@ -224,7 +268,8 @@ def merge_experiments(exp_dir_list, merged_dir):
     settings = get_settings()
     ai_apps = [AI_App(use_ui=False) for _ in range(settings.NUM_THREADS)]
     generation_class = algorithm_id_to_generation_class(
-            settings.EXPERIMENT_ALGORITHM_ID)
+        settings.EXPERIMENT_ALGORITHM_ID
+    )
     algorithm_name = generation_class.get_algorithm_name()
 
     experiment_name = os.path.basename(os.path.normpath(merged_dir))
@@ -241,12 +286,18 @@ def merge_experiments(exp_dir_list, merged_dir):
         directory for the provided experiment.
         """
         if not os.path.exists(exp_dir):
-            raise ValueError(("Parent experiment directory '%s' "
-                    "does not exist.") % exp_dir)
+            raise ValueError(
+                ("Parent experiment directory '%s' does not exist.") % exp_dir
+            )
         gen_dirs = [x for x in os.listdir(exp_dir) if x.startswith("gen")]
         if len(gen_dirs) == 0:
-            raise ValueError(("Parent experiment directory '%s' "
-                    "doesn't have any completed generations") % exp_dir)
+            raise ValueError(
+                (
+                    "Parent experiment directory '%s' "
+                    "doesn't have any completed generations"
+                )
+                % exp_dir
+            )
         return os.path.join(exp_dir, sorted(gen_dirs)[-1])
 
     # Ensure at least two parent experiments were provided,
@@ -257,12 +308,15 @@ def merge_experiments(exp_dir_list, merged_dir):
 
     # Ensure the output directory doesn't already exist, then create it
     if os.path.exists(merged_dir):
-        raise ValueError(("Output experiment directory '%s' "
-                "already exists.") % merged_dir)
+        raise ValueError(
+            ("Output experiment directory '%s' already exists.") % merged_dir
+        )
     parent_dir = os.path.dirname(os.path.normpath(merged_dir))
     if parent_dir != "" and not os.path.exists(parent_dir):
-        raise ValueError(("Parent directory of output location '%s' "
-            "does not exist.") % parent_dir)
+        raise ValueError(
+            ("Parent directory of output location '%s' does not exist.")
+            % parent_dir
+        )
     os.mkdir(merged_dir)
 
     brains = []
@@ -278,12 +332,19 @@ def merge_experiments(exp_dir_list, merged_dir):
         num_brains = brains_per_exp
         if parent_idx == len(exp_last_gens) - 1:
             num_brains += leftover_brains
-        gen_brain_files = [os.path.join(gen_dir, x) for x in os.listdir(gen_dir)
-                if x.endswith(".brn")]
+        gen_brain_files = [
+            os.path.join(gen_dir, x)
+            for x in os.listdir(gen_dir)
+            if x.endswith(".brn")
+        ]
         if len(gen_brain_files) < num_brains:
-            raise ValueError(("Parent experiment directory '%s' does not "
-                    "have enough brains in its last generation to conribute")
-                    % gen_dir)
+            raise ValueError(
+                (
+                    "Parent experiment directory '%s' does not "
+                    "have enough brains in its last generation to conribute"
+                )
+                % gen_dir
+            )
         for brain_file in gen_brain_files[:num_brains]:
             brains.append(generation_class.load_brain(brain_file))
     generation = generation_class(0, ai_apps, brains)
@@ -298,8 +359,9 @@ def merge_experiments(exp_dir_list, merged_dir):
     for exp_dir in exp_dir_list:
         print("=     %s" % exp_dir, file=log)
     print("========================================", file=log)
-    _write_to_log(log, "Initializing experiment '%s':\n"
-            % experiment_name, True)
+    _write_to_log(
+        log, "Initializing experiment '%s':\n" % experiment_name, True
+    )
 
     # Evaluate the generation
     _write_to_log(log, "Performing initial evaluation")
@@ -308,8 +370,12 @@ def merge_experiments(exp_dir_list, merged_dir):
         best_brain_id = generation.get_best_brain_id()
         best_brain = generation.get_brain(best_brain_id)
     except Exception as e:
-        _write_to_log(log, "\nERROR EVALUATING GENERATION %d\n%s" % \
-                (0, traceback.format_exc()), True)
+        _write_to_log(
+            log,
+            "\nERROR EVALUATING GENERATION %d\n%s"
+            % (0, traceback.format_exc()),
+            True,
+        )
         return
 
     # Save the generation
@@ -317,8 +383,11 @@ def merge_experiments(exp_dir_list, merged_dir):
     try:
         generation.save(os.path.join(merged_dir, "gen000"))
     except Exception as e:
-        _write_to_log(log, "\nERROR SAVING GENERATION %d\n%s" % \
-                (0, traceback.format_exc()), True)
+        _write_to_log(
+            log,
+            "\nERROR SAVING GENERATION %d\n%s" % (0, traceback.format_exc()),
+            True,
+        )
         return
     _write_to_log(log, "\n")
 
@@ -327,13 +396,15 @@ def merge_experiments(exp_dir_list, merged_dir):
     best_brain.save(best_brain_filename)
 
     # Create the experiment meta file
-    meta_dict = OrderedDict({
+    meta_dict = OrderedDict(
+        {
             "AI Algorithm": algorithm_name,
             "Best Fitness": best_brain.fitness,
             "Best Brain": "Generation: %03d - ID: %03d" % (0, best_brain_id),
             "Generation Index": 1,
             "Stagnation Index": 0,
-    })
+        }
+    )
     try:
         _write_meta_file(meta_filename, meta_dict)
     except Exception as e:
@@ -345,6 +416,7 @@ def merge_experiments(exp_dir_list, merged_dir):
     [ai_app.cleanup_simulation() for ai_app in ai_apps]
     settings.SOUNDS_ENABLED = previous_sounds_enabled
     log.close()
+
 
 def _write_to_log(log, message, force_echo=False):
     """
@@ -360,6 +432,7 @@ def _write_to_log(log, message, force_echo=False):
         print(message, end="")
         sys.stdout.flush()
 
+
 def _write_meta_file(filename, meta_dict):
     """
     Writes the data contained in meta_dict to the specified file.
@@ -368,6 +441,7 @@ def _write_meta_file(filename, meta_dict):
         os.remove(filename)
     with open(filename, "w") as meta_file:
         json.dump(meta_dict, meta_file, indent=4)
+
 
 def _load_meta_file(filename):
     """

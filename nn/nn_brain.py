@@ -1,10 +1,12 @@
+import json
+import os
+
 from ai.ai_brain import AI_Brain
 from ai.ai_player import AI_Player
 from ai.sensor import sense_n_dir
 from nn.neural_network import Neural_Network
 from settings import get_settings
-import json
-import os
+
 
 class NN_Brain(AI_Brain):
     """
@@ -18,7 +20,8 @@ class NN_Brain(AI_Brain):
             self.network = network
         else:
             self.network = Neural_Network.init_random(
-                    settings.NUM_SENSOR_REGIONS, AI_Player.DECISION_VECTOR_SIZE)
+                settings.NUM_SENSOR_REGIONS, AI_Player.DECISION_VECTOR_SIZE
+            )
 
     def sense(self, player, asteroids, bullets):
         """
@@ -26,8 +29,13 @@ class NN_Brain(AI_Brain):
         matrix to be used as input to the AI update function.
         """
         settings = get_settings()
-        return sense_n_dir(settings.NUM_SENSOR_REGIONS, player, asteroids,
-                settings.MAX_SENSOR_DISTANCE, shape=settings.SENSOR_OUTPUT_SHAPE)
+        return sense_n_dir(
+            settings.NUM_SENSOR_REGIONS,
+            player,
+            asteroids,
+            settings.MAX_SENSOR_DISTANCE,
+            shape=settings.SENSOR_OUTPUT_SHAPE,
+        )
 
     def think(self, player, bullets, sensor_data):
         """

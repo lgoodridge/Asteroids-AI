@@ -1,8 +1,11 @@
+import os
+
+import numpy as np
+
 from ai.generation import Generation
 from nn.nn_brain import NN_Brain
 from settings import get_settings
-import numpy as np
-import os
+
 
 class NN_Generation(Generation):
     """
@@ -10,8 +13,7 @@ class NN_Generation(Generation):
     """
 
     def __init__(self, generation_number, ai_apps, brains=None):
-        super(NN_Generation, self).__init__(generation_number,
-                ai_apps, brains)
+        super(NN_Generation, self).__init__(generation_number, ai_apps, brains)
 
     def _create_initial_brains(self, num_brains):
         """
@@ -31,13 +33,16 @@ class NN_Generation(Generation):
         # Organize brains into fitness buckets
         brain_buckets = {}
         for brain in self._brains:
-            brain_buckets[brain.fitness] = \
-                    brain_buckets.get(brain.fitness, []) + [brain]
+            brain_buckets[brain.fitness] = brain_buckets.get(
+                brain.fitness, []
+            ) + [brain]
 
         # Choose a single brain for each fitness value to represent that bucket
         sorted_fitnesses = sorted(brain_buckets.keys(), reverse=True)
-        sorted_brains = [np.random.choice(brain_buckets[fitness])
-                for fitness in sorted_fitnesses]
+        sorted_brains = [
+            np.random.choice(brain_buckets[fitness])
+            for fitness in sorted_fitnesses
+        ]
 
         # Choose the best brains of this generation to survive into the next
         num_survivors = int(num_brains * settings.GENERATION_SURVIVOR_RATE)
@@ -49,16 +54,18 @@ class NN_Generation(Generation):
         survivor_fitnesses = np.array([x.fitness for x in survivors])
         survivor_probs = survivor_fitnesses / float(survivor_fitnesses.sum())
         for i in range(num_survivor_children):
-            parents = np.random.choice(survivors, 2,
-                    replace=False, p=survivor_probs)
+            parents = np.random.choice(
+                survivors, 2, replace=False, p=survivor_probs
+            )
             new_brains.append(parents[0].crossover(parents[1]))
 
         # Breed the remaining population from the entire previous generation
         num_remaining_children = num_brains - len(new_brains)
         all_probs = np.array(sorted_fitnesses) / sum(sorted_fitnesses)
         for i in range(num_remaining_children):
-            parents = np.random.choice(sorted_brains, 2,
-                    replace=False, p=all_probs)
+            parents = np.random.choice(
+                sorted_brains, 2, replace=False, p=all_probs
+            )
             new_brains.append(parents[0].crossover(parents[1]))
 
         # Determine the number of champions in the previous generation
@@ -73,11 +80,14 @@ class NN_Generation(Generation):
 
         # Mutate all members of the new generation,
         # except the previous generation's champion(s)
-        map(lambda x: x.mutate(settings.MUTATION_RATE),
-                new_brains[num_champions:])
+        map(
+            lambda x: x.mutate(settings.MUTATION_RATE),
+            new_brains[num_champions:],
+        )
 
-        return NN_Generation(self._generation_number+1, self._apps,
-                brains=new_brains)
+        return NN_Generation(
+            self._generation_number + 1, self._apps, brains=new_brains
+        )
 
     @staticmethod
     def load_brain(filename):

@@ -2,9 +2,11 @@
 Defines asteroid sensing functions to be used by AI players.
 """
 
-from asteroids.utils import angle_to_xy, distance_between_xy
-from settings import get_settings, Settings
 import math
+
+from asteroids.utils import angle_to_xy, distance_between_xy
+from settings import Settings, get_settings
+
 
 def sense_n_dir(n, player, asteroids, max_distance, shape=Settings.LINEAR):
     """
@@ -23,20 +25,27 @@ def sense_n_dir(n, player, asteroids, max_distance, shape=Settings.LINEAR):
     settings = get_settings()
     distances = [0.0] * n
     for asteroid in asteroids:
-        distance = distance_between_xy(player.x, player.y, asteroid.x,
-                asteroid.y) - (asteroid.radius + player.radius)
+        distance = distance_between_xy(
+            player.x, player.y, asteroid.x, asteroid.y
+        ) - (asteroid.radius + player.radius)
         if distance > max_distance:
             continue
         distance = max(distance, 1.0)
-        angle = (angle_to_xy(player.x, player.y, asteroid.x,
-                asteroid.y) - player.rotation) % (2 * math.pi)
-        closest_direction = int((angle + (math.pi / n)) / (2.0 * math.pi / n)) % n
+        angle = (
+            angle_to_xy(player.x, player.y, asteroid.x, asteroid.y)
+            - player.rotation
+        ) % (2 * math.pi)
+        closest_direction = (
+            int((angle + (math.pi / n)) / (2.0 * math.pi / n)) % n
+        )
         if shape == settings.LINEAR:
-            distances[closest_direction] = max(1 - distance/max_distance,
-                    distances[closest_direction])
+            distances[closest_direction] = max(
+                1 - distance / max_distance, distances[closest_direction]
+            )
         elif shape == settings.HYPERBOLIC:
-            distances[closest_direction] = max(1.0/distance,
-                    distances[closest_direction])
+            distances[closest_direction] = max(
+                1.0 / distance, distances[closest_direction]
+            )
         else:
             raise RuntimeError("Programmer Error: Unsupported shape %d" % shape)
     return distances

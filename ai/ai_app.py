@@ -1,7 +1,8 @@
 from ai.ai_player import AI_Player
 from asteroids.app import App
-from asteroids.utils import render_on, WHITE
+from asteroids.utils import WHITE, render_on
 from settings import get_settings
+
 
 class AI_App(App):
     """
@@ -14,7 +15,9 @@ class AI_App(App):
         Creates and returns a new AI_Player in the center of the screen.
         """
         settings = get_settings()
-        return AI_Player(settings.WIDTH/2, settings.HEIGHT/2, self._ai_brain)
+        return AI_Player(
+            settings.WIDTH / 2, settings.HEIGHT / 2, self._ai_brain
+        )
 
     def _update_player(self):
         """
@@ -33,22 +36,39 @@ class AI_App(App):
 
         # Show fitness stats in top-left, under Score, if necessary
         if settings.SHOW_SCORE:
-            run_time_text = self._small_font.render("Runtime: %ds (%d)" %
-                    (self.run_time/60, self.run_time), True, WHITE)
-            run_time_rect = render_on(run_time_text, self.screen,
-                    run_time_text.get_width()/2, run_time_text.get_height()*3/2)
+            run_time_text = self._small_font.render(
+                "Runtime: %ds (%d)" % (self.run_time / 60, self.run_time),
+                True,
+                WHITE,
+            )
+            run_time_rect = render_on(
+                run_time_text,
+                self.screen,
+                run_time_text.get_width() / 2,
+                run_time_text.get_height() * 3 / 2,
+            )
             render_rects.append(run_time_rect)
 
-            accuracy_text = self._small_font.render("Accuracy: %.2f" %
-                    self._get_accuracy(), True, WHITE)
-            accuracy_rect = render_on(accuracy_text, self.screen,
-                    accuracy_text.get_width()/2, accuracy_text.get_height()*5/2)
+            accuracy_text = self._small_font.render(
+                "Accuracy: %.2f" % self._get_accuracy(), True, WHITE
+            )
+            accuracy_rect = render_on(
+                accuracy_text,
+                self.screen,
+                accuracy_text.get_width() / 2,
+                accuracy_text.get_height() * 5 / 2,
+            )
             render_rects.append(accuracy_rect)
 
-            fitness_text = self._small_font.render("Fitness: %d" %
-                    self._get_fitness(), True, WHITE)
-            fitness_rect = render_on(fitness_text, self.screen,
-                    fitness_text.get_width()/2, fitness_text.get_height()*7/2)
+            fitness_text = self._small_font.render(
+                "Fitness: %d" % self._get_fitness(), True, WHITE
+            )
+            fitness_rect = render_on(
+                fitness_text,
+                self.screen,
+                fitness_text.get_width() / 2,
+                fitness_text.get_height() * 7 / 2,
+            )
             render_rects.append(fitness_rect)
 
         # Return the rects to be re-rendered
@@ -75,9 +95,11 @@ class AI_App(App):
         """
         settings = get_settings()
         num_missed_shots = self.player.num_bullets_fired - self.asteroids_hit
-        raw_fitness = ((self.score * settings.FITNESS_SCORE_WEIGHT) +
-                (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT) -
-                (num_missed_shots * settings.FITNESS_MISSED_SHOT_PENALTY))
+        raw_fitness = (
+            (self.score * settings.FITNESS_SCORE_WEIGHT)
+            + (self.run_time * settings.FITNESS_RUN_TIME_WEIGHT)
+            - (num_missed_shots * settings.FITNESS_MISSED_SHOT_PENALTY)
+        )
         return max(raw_fitness, 0)
 
     def start_game(self, ai_brain, seed=None):

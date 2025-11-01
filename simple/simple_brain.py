@@ -1,6 +1,7 @@
 from ai.ai_brain import AI_Brain
 from ai.sensor import sense_n_dir
 
+
 class Simple_Brain(AI_Brain):
     """
     Simple, procedural implementation of an AI brain.

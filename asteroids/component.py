@@ -1,7 +1,10 @@
-from asteroids.utils import get_render_rect, GREEN, RED
-from settings import get_settings
 import math
+
 import pygame
+
+from asteroids.utils import GREEN, RED, get_render_rect
+from settings import get_settings
+
 
 class Component(object):
     """
@@ -36,11 +39,13 @@ class Component(object):
         """
         settings = get_settings()
         if settings.DEBUG_MODE:
-            pygame.draw.circle(screen, GREEN, (int(self.x), int(self.y)),
-                    self.radius, 1)
+            pygame.draw.circle(
+                screen, GREEN, (int(self.x), int(self.y)), self.radius, 1
+            )
         elif settings.SHOW_COLLISION_BOUNDARY:
-            pygame.draw.circle(screen, RED, (int(self.x), int(self.y)),
-                    self.radius, 1)
+            pygame.draw.circle(
+                screen, RED, (int(self.x), int(self.y)), self.radius, 1
+            )
 
     def add_render_rects(self, rects):
         """

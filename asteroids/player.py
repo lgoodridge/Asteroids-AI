@@ -1,10 +1,13 @@
+import math
+
+import pygame
+
 from asteroids.bullet import Bullet
 from asteroids.component import Component
-from asteroids.utils import get_rotated_vertices, has_collided, WHITE
 from asteroids.sound import play_sound, stop_sound
+from asteroids.utils import WHITE, get_rotated_vertices, has_collided
 from settings import get_settings
-import math
-import pygame
+
 
 class Player(Component):
     """
@@ -49,10 +52,12 @@ class Player(Component):
         """
         super(Player, self).move()
         if self._boosting:
-            new_vx = (self.speed * math.sin(self.angle)) + \
-                    (Player.BOOSTER_ACCELERATION * math.sin(self.rotation))
-            new_vy = (self.speed * math.cos(self.angle)) + \
-                    (Player.BOOSTER_ACCELERATION * math.cos(self.rotation))
+            new_vx = (self.speed * math.sin(self.angle)) + (
+                Player.BOOSTER_ACCELERATION * math.sin(self.rotation)
+            )
+            new_vy = (self.speed * math.cos(self.angle)) + (
+                Player.BOOSTER_ACCELERATION * math.cos(self.rotation)
+            )
             new_speed = math.sqrt((new_vx * new_vx) + (new_vy * new_vy))
             new_angle = math.atan2(new_vx, new_vy)
         else:
@@ -60,8 +65,9 @@ class Player(Component):
             new_angle = self.angle
         self.speed = max(min(new_speed, Player.MAX_SPEED), 0)
         self.angle = new_angle % (2 * math.pi)
-        self.rotation = (self.rotation + self._spin * Player.ROTATE_SPEED) \
-                % (2*math.pi)
+        self.rotation = (self.rotation + self._spin * Player.ROTATE_SPEED) % (
+            2 * math.pi
+        )
 
     def draw(self, screen):
         """
@@ -69,8 +75,9 @@ class Player(Component):
         """
         super(Player, self).draw(screen)
         unrotated_angles = [0, (3 * math.pi / 4), (5 * math.pi / 4)]
-        vertices = get_rotated_vertices(unrotated_angles, self.x, self.y,
-                self.radius, self.rotation)
+        vertices = get_rotated_vertices(
+            unrotated_angles, self.x, self.y, self.radius, self.rotation
+        )
         vertices = vertices[:2] + [(self.x, self.y)] + vertices[2:]
         pygame.draw.polygon(screen, WHITE, vertices, 1)
 
@@ -111,9 +118,11 @@ class Player(Component):
         Shoots a bullet in the current direction if possible.
         """
         settings = get_settings()
-        if len(bullets) < Player.MAX_ONSCREEN_BULLETS and \
-                self._remaining_reload_time == 0 and \
-                not settings.DISABLE_SHOOTING:
+        if (
+            len(bullets) < Player.MAX_ONSCREEN_BULLETS
+            and self._remaining_reload_time == 0
+            and not settings.DISABLE_SHOOTING
+        ):
             bullets.append(Bullet(self.x, self.y, self.rotation))
             self.num_bullets_fired += 1
             self._remaining_reload_time = Player.RELOAD_TIME

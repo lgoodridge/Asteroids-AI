@@ -1,14 +1,16 @@
 from ai.generation import Generation
 from simple.simple_brain import Simple_Brain
 
+
 class Simple_Generation(Generation):
     """
     Defines a generation of Simple AI brains.
     """
 
     def __init__(self, generation_number, ai_apps, brains=None):
-        super(Simple_Generation, self).__init__(generation_number,
-                ai_apps, brains)
+        super(Simple_Generation, self).__init__(
+            generation_number, ai_apps, brains
+        )
 
     def _create_initial_brains(self, num_brains):
         """
@@ -26,8 +28,9 @@ class Simple_Generation(Generation):
         of simple brains.
         """
         brains = [Simple_Brain() for i in range(len(self._brains))]
-        return Simple_Generation(self._generation_number+1, self._apps,
-                brains=brains)
+        return Simple_Generation(
+            self._generation_number + 1, self._apps, brains=brains
+        )
 
     @staticmethod
     def _load_brain(filename):

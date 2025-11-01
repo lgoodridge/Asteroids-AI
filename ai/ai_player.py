@@ -1,5 +1,6 @@
 from asteroids.player import Player
 
+
 class AI_Player(Player):
     """
     Defines the player ship, controlled by an AI.
@@ -9,8 +10,8 @@ class AI_Player(Player):
     DECISION_VECTOR_SIZE = 4
 
     def __init__(self, x, y, ai_brain):
-       super(AI_Player, self).__init__(x, y)
-       self._brain = ai_brain
+        super(AI_Player, self).__init__(x, y)
+        self._brain = ai_brain
 
     def sense(self, asteroids, bullets):
         """
@@ -40,9 +41,13 @@ class AI_Player(Player):
         The player ship then carries out these decisions for this timestep.
         """
         if len(decision_vector) != AI_Player.DECISION_VECTOR_SIZE:
-            raise RuntimeError(("Programmer Error: decision vector has "
-                    "length '%d' instead of expected length '%d'." %
-                    (len(decision_vector), AI_Player.DECISION_VECTOR_SIZE)))
+            raise RuntimeError(
+                (
+                    "Programmer Error: decision vector has "
+                    "length '%d' instead of expected length '%d'."
+                    % (len(decision_vector), AI_Player.DECISION_VECTOR_SIZE)
+                )
+            )
 
         if decision_vector[0]:
             self.shoot(bullets)

@@ -1,6 +1,8 @@
-from asteroids.component import Component
-from asteroids.utils import has_collided, WHITE
 import pygame
+
+from asteroids.component import Component
+from asteroids.utils import WHITE, has_collided
+
 
 class Bullet(Component):
     """
@@ -23,8 +25,9 @@ class Bullet(Component):
         Draws the bullet at its current location.
         """
         super(Bullet, self).draw(screen)
-        pygame.draw.circle(screen, WHITE, (int(self.x), int(self.y)),
-                self.radius, 0)
+        pygame.draw.circle(
+            screen, WHITE, (int(self.x), int(self.y)), self.radius, 0
+        )
 
     def increase_age(self):
         """

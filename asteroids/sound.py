@@ -2,15 +2,18 @@
 Handles BGM and sound effects for the Asteroids game.
 """
 
-from settings import get_settings
 import os
+
 import pygame
+
+from settings import get_settings
 
 # Whether the sound module has been initialized
 _is_initialized = False
 
 # Relates sound names to their loaded sound effect
 _sound_library = {}
+
 
 def load_sounds():
     """
@@ -26,14 +29,17 @@ def load_sounds():
     # Ensure the sounds directory actually exists
     sounds_directory = os.path.join("asteroids", "sounds")
     if not os.path.exists(sounds_directory):
-        raise RuntimeError("Sounds directory (expected at asteroids/sounds/) " +
-                "not found!")
+        raise RuntimeError(
+            "Sounds directory (expected at asteroids/sounds/) " + "not found!"
+        )
 
     # Load all .wav files found within the sounds directory
     for filename in os.listdir(sounds_directory):
         if filename.endswith(".wav"):
             _sound_library[filename.split(".")[0]] = pygame.mixer.Sound(
-                    os.path.join(sounds_directory, filename))
+                os.path.join(sounds_directory, filename)
+            )
+
 
 def play_sound(sound_name, loops=0):
     """
@@ -44,9 +50,12 @@ def play_sound(sound_name, loops=0):
     if not settings.SOUNDS_ENABLED or not settings.PLAY_SFX:
         return
     if not _is_initialized:
-        raise RuntimeError("Programmer Error: sound module used " +
-                "before load_sounds() call.")
+        raise RuntimeError(
+            "Programmer Error: sound module used "
+            + "before load_sounds() call."
+        )
     _sound_library[sound_name].play(loops)
+
 
 def stop_sound(sound_name, fadeout_ms=0):
     """
@@ -57,9 +66,11 @@ def stop_sound(sound_name, fadeout_ms=0):
     if not settings.SOUNDS_ENABLED:
         return
     if not _is_initialized:
-        raise RuntimeError("Programer Error: sound module used " +
-                "before load_sounds() call.")
+        raise RuntimeError(
+            "Programer Error: sound module used " + "before load_sounds() call."
+        )
     _sound_library[sound_name].fadeout(fadeout_ms)
+
 
 def stop_all_sounds():
     """
@@ -69,8 +80,8 @@ def stop_all_sounds():
     if not settings.SOUNDS_ENABLED:
         return
     if not _is_initialized:
-        raise RuntimeError("Programer Error: sound module used " +
-                "before load_sounds() call.")
+        raise RuntimeError(
+            "Programer Error: sound module used " + "before load_sounds() call."
+        )
     for _, sound in _sound_library.items():
         sound.stop()
-

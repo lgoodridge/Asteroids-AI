@@ -2,10 +2,12 @@
 Defines settings for the Asteroids Game / AI.
 """
 
-import click
 import multiprocessing
 import os
 import sys
+
+import click
+
 
 class Settings:
     """
@@ -381,7 +383,7 @@ def load_settings_from_cli():
     "--num-threads",
     type=int,
     default=None,
-    help="Number of workers to use for concurrent operations."
+    help="Number of workers to use for concurrent operations.",
 )
 @click.option(
     "--experiment-directory",

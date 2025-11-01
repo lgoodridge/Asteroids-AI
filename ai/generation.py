@@ -1,7 +1,8 @@
-from ai.utils import META_FILENAME, SUMMARY_FILENAME
-from settings import get_settings, load_settings_from_settings
 import multiprocessing
 import os
+
+from ai.utils import META_FILENAME, SUMMARY_FILENAME
+from settings import get_settings, load_settings_from_settings
 
 
 class Generation(object):

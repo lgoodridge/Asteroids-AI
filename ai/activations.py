@@ -2,8 +2,10 @@
 Implementations of several activation functions.
 """
 
-from settings import get_settings
 import math
+
+from settings import get_settings
+
 
 def log_activation(x):
     """
@@ -11,11 +13,13 @@ def log_activation(x):
     """
     return math.log(x)
 
+
 def relu_activation(x):
     """
     Returns x if positive, 0 otherwise.
     """
     return x if x > 0.0 else 0.0
+
 
 def sigmoid_activation(x):
     """
@@ -23,17 +27,20 @@ def sigmoid_activation(x):
     """
     return 1.0 / (1.0 + math.exp(-x))
 
+
 def softplus_activation(x):
     """
     Returns a smooth approximation of ReLU.
     """
     return math.log(1 + math.exp(x))
 
+
 def threshold_activation(x, threshold):
     """
     Returns 1 if x is above threshold, 0 otherwise.
     """
     return int(x > threshold)
+
 
 def get_activation_function(function_id):
     """
@@ -50,5 +57,7 @@ def get_activation_function(function_id):
     elif function_id == settings.SOFTPLUS:
         return softplus_activation
     else:
-        raise RuntimeError("Programmer Error: Invalid activation " +
-                "function id '%d'" % function_id)
+        raise RuntimeError(
+            "Programmer Error: Invalid activation "
+            + "function id '%d'" % function_id
+        )

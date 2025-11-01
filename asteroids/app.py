@@ -1,12 +1,15 @@
+import math
+import random
+
+import pygame
+
 from asteroids.asteroid import Asteroid
 from asteroids.bullet import Bullet
 from asteroids.player import Player
-from asteroids.sound import load_sounds, play_sound, stop_sound, stop_all_sounds
-from asteroids.utils import render_on, BLACK, GRAY, WHITE
+from asteroids.sound import load_sounds, play_sound, stop_all_sounds, stop_sound
+from asteroids.utils import BLACK, GRAY, WHITE, render_on
 from settings import get_settings
-import math
-import pygame
-import random
+
 
 class App(object):
     """
@@ -48,7 +51,8 @@ class App(object):
 
             # Set up the game screen
             self.screen = pygame.display.set_mode(
-                    (settings.WIDTH, settings.HEIGHT))
+                (settings.WIDTH, settings.HEIGHT)
+            )
             self.screen.fill(BLACK)
             pygame.display.flip()
 
@@ -62,8 +66,9 @@ class App(object):
 
         # If the UI is disabled, ensure sounds are also disabled
         elif settings.SOUNDS_ENABLED:
-            raise RuntimeError("settings.SOUNDS_ENABLED must be False if "
-                    "use_ui is False")
+            raise RuntimeError(
+                "settings.SOUNDS_ENABLED must be False if use_ui is False"
+            )
 
         # Save the rng seed
         self._seed = seed
@@ -99,14 +104,22 @@ class App(object):
         """
         settings = get_settings()
         self._state = App.SPLASH
-        self._splash_title = self._big_font.render("Asteroids",
-                True, WHITE)
+        self._splash_title = self._big_font.render("Asteroids", True, WHITE)
         self._splash_text = self._medium_font.render(
-                "Click or press Enter to begin.", True, GRAY)
-        render_on(self._splash_title, self.screen, settings.WIDTH/2,
-                settings.HEIGHT/2 - self._splash_title.get_height())
-        render_on(self._splash_text, self.screen, settings.WIDTH/2,
-                settings.HEIGHT/2 + self._splash_text.get_height())
+            "Click or press Enter to begin.", True, GRAY
+        )
+        render_on(
+            self._splash_title,
+            self.screen,
+            settings.WIDTH / 2,
+            settings.HEIGHT / 2 - self._splash_title.get_height(),
+        )
+        render_on(
+            self._splash_text,
+            self.screen,
+            settings.WIDTH / 2,
+            settings.HEIGHT / 2 + self._splash_text.get_height(),
+        )
         pygame.display.flip()
 
     def _load_level(self):
@@ -147,7 +160,6 @@ class App(object):
             stop_all_sounds()
             play_sound("bgm", -1)
 
-
     def _load_game_over(self):
         """
         Hides the player and loads the Game Over screen.
@@ -187,14 +199,15 @@ class App(object):
         # Get the approximate number of milliseconds since last asteroid spawn
         # Since the game operates on frames (the number of update iterations),
         # we multiply the frame difference by (1000 ms / s) * (1s / 60 frames)
-        frames_since_last_spawn = (self.run_time - self._last_spawn_time)
+        frames_since_last_spawn = self.run_time - self._last_spawn_time
         ms_since_last_spawn = frames_since_last_spawn * 1000.0 / 60.0
 
         # If the spawn period has expired, spawn a new aimed Asteroid
         if ms_since_last_spawn > self._spawn_period:
             new_spawn_period = self._spawn_period - settings.SPAWN_PERIOD_DEC
-            self._spawn_period = max(new_spawn_period,
-                    settings.MIN_SPAWN_PERIOD)
+            self._spawn_period = max(
+                new_spawn_period, settings.MIN_SPAWN_PERIOD
+            )
             self._last_spawn_time = self.run_time
             Asteroid.spawn(self.asteroids, self.player, True)
 
@@ -256,33 +269,54 @@ class App(object):
         # Show score in top left if necessary
         if settings.SHOW_SCORE:
             score_text = self._small_font.render(
-                    "Score: %d" % self.score, True, WHITE)
-            score_rect = render_on(score_text, self.screen,
-                    score_text.get_width() / 2, score_text.get_height()/2)
+                "Score: %d" % self.score, True, WHITE
+            )
+            score_rect = render_on(
+                score_text,
+                self.screen,
+                score_text.get_width() / 2,
+                score_text.get_height() / 2,
+            )
             render_rects.append(score_rect)
 
         # Show FPS text in bottom left if necessary
         if settings.SHOW_FPS:
-            current_fps = 0 if math.isinf(self._clock.get_fps()) \
-                    else int(self._clock.get_fps())
+            current_fps = (
+                0
+                if math.isinf(self._clock.get_fps())
+                else int(self._clock.get_fps())
+            )
             fps_text = self._small_font.render(
-                    "FPS: %d" % current_fps, True, WHITE)
-            fps_rect = render_on(fps_text, self.screen, fps_text.get_width() / 2,
-                    settings.HEIGHT - fps_text.get_height() / 2)
+                "FPS: %d" % current_fps, True, WHITE
+            )
+            fps_rect = render_on(
+                fps_text,
+                self.screen,
+                fps_text.get_width() / 2,
+                settings.HEIGHT - fps_text.get_height() / 2,
+            )
             render_rects.append(fps_rect)
 
         # If the game is paused, display paused text
         if self._state == App.PAUSED:
             paused_text = self._big_font.render("PAUSED", True, WHITE)
-            paused_rect = render_on(paused_text, self.screen,
-                    settings.WIDTH/2, settings.HEIGHT/2)
+            paused_rect = render_on(
+                paused_text,
+                self.screen,
+                settings.WIDTH / 2,
+                settings.HEIGHT / 2,
+            )
             render_rects.append(paused_rect)
 
         # If the game is over, display game over text
         if self._state == App.GAME_OVER:
             game_over_text = self._big_font.render("GAME OVER", True, WHITE)
-            game_over_rect = render_on(game_over_text, self.screen,
-                    settings.WIDTH/2, settings.HEIGHT/2)
+            game_over_rect = render_on(
+                game_over_text,
+                self.screen,
+                settings.WIDTH / 2,
+                settings.HEIGHT / 2,
+            )
             render_rects.append(game_over_rect)
 
         # Render AI Spectator mode components if necessary
@@ -299,24 +333,31 @@ class App(object):
         settings = get_settings()
 
         # Stop running when the close button or 'Q' is pressed
-        if event.type == pygame.QUIT or \
-                event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+        if (
+            event.type == pygame.QUIT
+            or event.type == pygame.KEYDOWN
+            and event.key == pygame.K_q
+        ):
             self._running = False
 
         # Check if user clicked or pressed enter to begin
         elif self._state == App.SPLASH:
-            if (event.type == pygame.MOUSEBUTTONDOWN) or \
-                    (event.type == pygame.KEYDOWN and
-                    event.key == pygame.K_RETURN):
+            if (event.type == pygame.MOUSEBUTTONDOWN) or (
+                event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN
+            ):
                 self._load_level()
 
-        elif self._state == App.RUNNING or \
-                self._state == App.PAUSED or self._state == App.GAME_OVER:
+        elif (
+            self._state == App.RUNNING
+            or self._state == App.PAUSED
+            or self._state == App.GAME_OVER
+        ):
 
             # B: Toggle collision boundary display
             if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
-                settings.SHOW_COLLISION_BOUNDARY = settings.DEBUG_MODE or \
-                        not settings.SHOW_COLLISION_BOUNDARY
+                settings.SHOW_COLLISION_BOUNDARY = (
+                    settings.DEBUG_MODE or not settings.SHOW_COLLISION_BOUNDARY
+                )
             # C: Toggle score display
             if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
                 settings.SHOW_SCORE = not settings.SHOW_SCORE
@@ -412,7 +453,7 @@ class App(object):
         Creates and returns a new Player in the center of the screen.
         """
         settings = get_settings()
-        return Player(settings.WIDTH/2, settings.HEIGHT/2)
+        return Player(settings.WIDTH / 2, settings.HEIGHT / 2)
 
     def _update_player(self):
         """
@@ -432,6 +473,6 @@ class App(object):
         Checks whether event was an AI Spectator mode
         specific control, and handles it if so.
         """
-        raise NotImplementedError("'_handle_ai_spectator_controls' "
-                "should only be called by AI_App")
-
+        raise NotImplementedError(
+            "'_handle_ai_spectator_controls' should only be called by AI_App"
+        )
