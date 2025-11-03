@@ -1,0 +1,7 @@
+{
+    "GAME_ALGORITHM_ID": "simple",
+    "USE_PREDETERMINED_SEEDS": true,
+    "PREDETERMINED_SEEDS": [
+        2
+    ]
+}

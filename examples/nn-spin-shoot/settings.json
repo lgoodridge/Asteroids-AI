@@ -1,0 +1,7 @@
+{
+    "GAME_ALGORITHM_ID": "nn",
+    "USE_PREDETERMINED_SEEDS": true,
+    "PREDETERMINED_SEEDS": [
+        2
+    ]
+}
