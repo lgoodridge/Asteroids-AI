@@ -1,0 +1,12 @@
+{
+    "GAME_ALGORITHM_ID": "nn",
+    "EXPERIMENT_ALGORITHM_ID": "nn",
+    "USE_PREDETERMINED_SEEDS": true,
+    "NUM_EVALUATION_SIMULATIONS": 2,
+    "PREDETERMINED_SEEDS": [
+        2,
+        1
+    ],
+    "GENERATION_POPULATION": 100,
+    "MAX_GENERATIONS": 5
+}

@@ -7,13 +7,13 @@ BASE_DIR=$(dirname "$0")
 BASE_DIR=${BASE_DIR#./}
 
 # Run experiments with different thread counts, and time how long each one took
-time ( python start.py --run-mode=experiment --experiment-algorithm-id=nn --experiment-directory=$BASE_DIR/one-thread --use-predetermined-seeds=true --num-evaluation-simulations=2 -s 1 -s 2 --generation-population=100 --max-generations=5 --num-threads=1 )
+time ( python start.py --run-mode=experiment --settings-file=$BASE_DIR/settings.json --experiment-directory=$BASE_DIR/one-thread --num-threads=1 )
 echo ""
 
-time ( python start.py --run-mode=experiment --experiment-algorithm-id=nn --experiment-directory=$BASE_DIR/four-threads --use-predetermined-seeds=true --num-evaluation-simulations=2 -s 1 -s 2 --generation-population=100 --max-generations=5 --num-threads=4 )
+time ( python start.py --run-mode=experiment --settings-file=$BASE_DIR/settings.json --experiment-directory=$BASE_DIR/four-threads --num-threads=4 )
 echo ""
 
-time ( python start.py --run-mode=experiment --experiment-algorithm-id=nn --experiment-directory=$BASE_DIR/default-threads --use-predetermined-seeds=true --num-evaluation-simulations=2 -s 1 -s 2 --generation-population=100 --max-generations=5 )
+time ( python start.py --run-mode=experiment --settings-file=$BASE_DIR/settings.json --experiment-directory=$BASE_DIR/default-threads )
 echo ""
 
 # Save one of the brains for demoing

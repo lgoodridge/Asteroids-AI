@@ -6,7 +6,7 @@ echo "--------------"
 BASE_DIR=$(dirname "$0")
 BASE_DIR=${BASE_DIR#./}
 
-python start.py --run-mode=experiment --experiment-algorithm-id=nn --experiment-directory=$BASE_DIR/defaults --use-predetermined-seeds=true -s 2
+python start.py --run-mode=experiment --settings-file=$BASE_DIR/settings.json --experiment-directory=$BASE_DIR/results
 
 echo "--------------"
 echo "TESTS FINISHED"
