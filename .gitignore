@@ -17,6 +17,7 @@ data/*
 experiments/*/*
 !experiments/*/_run.sh
 !experiments/*/_demo.sh
+!experiments/*/settings.json
 
 # Old Folders
 examples/18_examples/

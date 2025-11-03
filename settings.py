@@ -2,6 +2,7 @@
 Defines settings for the Asteroids Game / AI.
 """
 
+import json
 import multiprocessing
 import os
 import sys
@@ -313,17 +314,21 @@ def load_settings_from_dict(settings_dict):
         if hasattr(settings, setting_name):
             setting_type = type(getattr(settings, setting_name))
 
+            # Ignore list settings with empty iterable values
+            # (click's default for these is an empty tuple instead of None)
+            if setting_type is list and len(value) == 0:
+                continue
+            # Handle list settings passed as tuples
+            # e.g. click passes "multiple" args as tuples
+            elif setting_type is list and isinstance(value, tuple):
+                setattr(settings, setting_name, list(value))
             # Handle boolean settings passed as strings
-            if setting_type is bool and isinstance(value, str):
+            elif setting_type is bool and isinstance(value, str):
                 setattr(
                     settings,
                     setting_name,
                     {"true": True, "false": False}[value],
                 )
-            # Handle list settings passed as tuples
-            # e.g. click passes "multiple" args as tuples
-            elif setting_type is list and isinstance(value, tuple):
-                setattr(settings, setting_name, list(value))
             # Handle simple settings (strings, ints, floats)
             else:
                 setattr(settings, setting_name, value)
@@ -343,12 +348,29 @@ def load_settings_from_cli():
         sys.exit(e.exit_code)
 
 
+def load_settings_from_json(json_filepath):
+    """
+    Loads settings from a JSON file.
+    """
+    settings_dict = _parse_json_as_dict(json_filepath)
+    load_settings_from_dict(settings_dict)
+
+
 ##################################################
-#         COMMAND LINE INTERFACE HELPERS
+#            SETTINGS LOADER HELPERS
 ##################################################
 
 
 @click.command(context_settings=dict(allow_extra_args=True))
+@click.option(
+    "--settings-file",
+    type=click.Path(exists=True),
+    default=None,
+    help=(
+        "Path to a settings JSON file. "
+        "Other CLI args will override values from the JSON"
+    ),
+)
 @click.option(
     "--run-mode",
     type=click.Choice([Settings.GAME, Settings.EXPERIMENT]),
@@ -559,6 +581,29 @@ def load_settings_from_cli():
 )
 def _click_load_settings_from_cli(**kwargs):
     """
-    Parses the CLI arguments with click, and loads them as a dict
+    Parses the CLI arguments with click, and loads them as a dict.
+
+    If a settings JSON file is provided, loads values from that first,
+    then overrides with other CLI arguments.
     """
-    load_settings_from_dict(kwargs)
+    settings_dict = {}
+    settings_file = kwargs.pop("settings_file", None)
+    if settings_file:
+        settings_dict = _parse_json_as_dict(settings_file)
+    settings_dict.update(kwargs)
+    load_settings_from_dict(settings_dict)
+
+
+def _parse_json_as_dict(json_filepath):
+    """
+    Parses a JSON file and returns its contents as a dictionary.
+    """
+    if not os.path.exists(json_filepath):
+        raise FileNotFoundError(f"JSON file not found: {json_filepath}")
+    with open(json_filepath, "r") as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Failed to parse JSON file ({json_filepath}): {e}"
+            )
