@@ -30,9 +30,7 @@ def run_experiment():
     """
     settings = get_settings()
     ai_apps = [AI_App(use_ui=False) for _ in range(settings.NUM_THREADS)]
-    generation_class = algorithm_id_to_generation_class(
-        settings.EXPERIMENT_ALGORITHM_ID
-    )
+    generation_class = algorithm_id_to_generation_class(settings.ALGORITHM_ID)
     algorithm_name = generation_class.get_algorithm_name()
 
     experiment_dir = settings.EXPERIMENT_DIRECTORY
@@ -267,9 +265,7 @@ def merge_experiments(exp_dir_list, merged_dir):
     """
     settings = get_settings()
     ai_apps = [AI_App(use_ui=False) for _ in range(settings.NUM_THREADS)]
-    generation_class = algorithm_id_to_generation_class(
-        settings.EXPERIMENT_ALGORITHM_ID
-    )
+    generation_class = algorithm_id_to_generation_class(settings.ALGORITHM_ID)
     algorithm_name = generation_class.get_algorithm_name()
 
     experiment_name = os.path.basename(os.path.normpath(merged_dir))

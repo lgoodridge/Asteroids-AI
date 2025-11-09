@@ -67,14 +67,11 @@ class Settings:
         # Who (or what) is playing the game
         self.PLAYER_MODE = Settings.HUMAN
 
-        # Algorithm to use when an AI is playing the game
-        self.GAME_ALGORITHM_ID = Settings.SIMPLE
+        # Algorithm to use when AI is training or playing the game
+        self.ALGORITHM_ID = Settings.SIMPLE
 
         # Path to the AI brain to use when playing the game
         self.GAME_AI_BRAIN = os.path.join("experiments", "simple", "_best.brn")
-
-        # Algorithm to use for the next experiment that is started
-        self.EXPERIMENT_ALGORITHM_ID = Settings.SIMPLE
 
         # Path to the directory used by the experiment:
         # If the directory contains the work of a previous experiment,
@@ -384,22 +381,16 @@ def load_settings_from_json(json_filepath):
     help="Who (or what) is playing the game.",
 )
 @click.option(
-    "--game-algorithm-id",
+    "--algorithm-id",
     type=click.Choice([Settings.SIMPLE, Settings.NN]),
     default=None,
-    help="Algorithm to use when AI is playing the game.",
+    help="Algorithm to use when AI is training or playing the game.",
 )
 @click.option(
     "--game-ai-brain",
     type=click.Path(exists=True),
     default=None,
     help="Path to AI brain to use when playing the game.",
-)
-@click.option(
-    "--experiment-algorithm-id",
-    type=click.Choice([Settings.SIMPLE, Settings.NN]),
-    default=None,
-    help="Algorithm to use for the next started experiment.",
 )
 @click.option(
     "--num-threads",

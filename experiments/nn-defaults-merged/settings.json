@@ -1,6 +1,5 @@
 {
-    "GAME_ALGORITHM_ID": "nn",
-    "EXPERIMENT_ALGORITHM_ID": "nn",
+    "ALGORITHM_ID": "nn",
     "USE_PREDETERMINED_SEEDS": true,
     "PREDETERMINED_SEEDS": [
         3

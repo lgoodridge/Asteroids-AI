@@ -27,7 +27,7 @@ if __name__ == "__main__":
             App().start_game(seed=seed)
         else:
             ai_brain_class = algorithm_id_to_ai_brain_class(
-                settings.GAME_ALGORITHM_ID
+                settings.ALGORITHM_ID
             )
             ai_brain = ai_brain_class.load(settings.GAME_AI_BRAIN)
             AI_App().start_game(ai_brain, seed=seed)
